@@ -2,10 +2,25 @@ import requests
 from random import uniform
 from time import sleep
 import csv
-import pprint as pp
-import json
+import os
+from dotenv import load_dotenv
+from boto3 import session
+
+load_dotenv()
 
 if __name__ == '__main__':
+
+    # credentials for digital ocean
+    ACCESS_ID = os.getenv("ACCESS_ID")
+    SECRET_KEY = os.getenv("SECRET_KEY")
+
+    # setting up for digital ocean upload
+    session = session.Session()
+    client = session.client('s3',
+                            region_name='nyc3',
+                            endpoint_url='https://nyc3.digitaloceanspaces.com',
+                            aws_access_key_id=ACCESS_ID,
+                            aws_secret_access_key=SECRET_KEY)
 
     # list of price ranges that returns less than 300 results
     ranges = [(10, 22), (23, 25), (26, 29), (30, 33), (34, 36), (37, 39),
@@ -128,6 +143,9 @@ if __name__ == '__main__':
                     writer = csv.writer(f, delimiter='\n')
                     writer.writerow(listing_ids)
 
+                client.upload_file('chicago_listing_ids.csv', 'spentaur',
+                                   'airbnb/chicago_listing_ids.csv')
+
                 # another insurance that has next page is right, if i get
                 # less than 18 there's no way there's a next page right?
                 if len(page_listing_ids) != 18:
@@ -140,7 +158,7 @@ if __name__ == '__main__':
                 # sleep between requests just to try to mitigate changes of
                 # getting banned, probably too long sleep times but oh well
                 # better safe than sorry
-                sleep_for = uniform(5, 20)
+                sleep_for = uniform(1, 5)
                 print('sleeping for:', sleep_for)
                 sleep(sleep_for)
 
