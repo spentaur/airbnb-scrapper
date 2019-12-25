@@ -82,11 +82,18 @@ if __name__ == '__main__':
             # make the actual request
             r = requests.get(url, params=params)
 
+            # attempts
+            attempts = 0
+            max_attempts = 10
+
             # check the status code
             status = r.status_code
             if status == 200:
                 # increment page
                 page += 1
+
+                # reset attempts
+                attempts = 0
 
                 # get the json results only care about explore tabs i think
                 # which is 1 element array of dictionaries so just get the
@@ -174,11 +181,18 @@ if __name__ == '__main__':
                 # let's just sleep and the request will be repeated. this
                 # repeats the while loop so nothing get's changed it's just
                 # the same request over again right? should verify that
+
+                # increment attempts
+                attempts += 1
+                if attempts >= max_attempts:
+                    break
                 print("status code", status)
                 sleep_for = uniform(20, 45)
                 print('sleeping for:', sleep_for)
                 sleep(sleep_for)
         print("\n")
+        if attempts >= max_attempts:
+            break
 
     print("total estimated listings:", total_estimated_listings)
     print("total actual listings:", total_actual_listings)
