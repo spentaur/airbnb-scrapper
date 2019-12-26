@@ -134,7 +134,7 @@ def get_listing_info(listing_id):
 
     # TODO check rooms
     rooms = {}
-    for room in listing['listing_rooms']:
+    for room in results['listing_rooms']:
         room_number = room['room_number']
         beds = []
         beds_keys = ['quantity', 'type']
