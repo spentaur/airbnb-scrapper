@@ -2,7 +2,8 @@ import requests
 
 
 def get_listing_info(listing_id):
-    url = 'https://www.airbnb.com/api/v2/pdp_listing_details/' + listing_id
+    url = 'https://www.airbnb.com/api/v2/pdp_listing_details/' + str(
+        listing_id)
 
     params = {'_format': 'for_rooms_show',
               'key':     'd306zoyjsyarp7ifhu67rjxn52tv0t20'}
