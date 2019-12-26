@@ -151,7 +151,7 @@ def get_listing_info(listing_id):
                  'response_time_without_na', 'has_inclusion_badge',
                  'profile_pic_path_large']
     for key in host_keys:
-        listing[f"host_{key}"] = results[key]
+        listing[f"host_{key}"] = results['primary_host'][key]
 
     sectioned_description_keys = ['access', 'description', 'house_rules',
                                   'interaction', 'neighborhood_overview',
@@ -173,6 +173,8 @@ def get_listing_info(listing_id):
         listing['is_plus'] = True
     else:
         listing['is_plus'] = False
+
+    return listing
 
 
 def get_only_certain_attr(list_to_filter, keys):
