@@ -12,6 +12,7 @@ requests = "*"
 boto3 = "*"
 python-dotenv = "*"
 pandas = "*"
+jupyter = "*"
 
 [requires]
 python_version = "3.7"

@@ -128,5 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-#ignore csv
+# ignore csv
 .csv
+
+# notebooks
+.ipynb
+.ipynb_checkpoints
