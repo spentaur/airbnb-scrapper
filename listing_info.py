@@ -2,6 +2,7 @@ import datetime
 from random import uniform
 from time import sleep
 
+import pandas as pd
 import requests
 
 
@@ -84,37 +85,37 @@ def get_listing_info(listing_id):
                                                   'appreciation_tags'],
                                               appreciation_tags_keys)
 
-    listing = {'additional_house_rules': additional_house_rules,
-               'bathroom_label':         bathroom_label,
-               'bed_label':              bed_label,
-               'bedroom_label':          bedroom_label,
-               'guest_label':            guest_label,
-               'id':                     results['id'],
-               'name':                   name,
-               'person_capacity':        person_capacity,
-               'photo_count':            photo_count,
-               'host_name':              host_name,
-               'languages':              languages,
-               'room_and_property_type': room_and_property_type,
-               'room_type_category':     room_type_category,
-               'tier_id':                tier_id,
+    listing = {'additional_house_rules':      additional_house_rules,
+               'bathroom_label':              bathroom_label,
+               'bed_label':                   bed_label,
+               'bedroom_label':               bedroom_label,
+               'guest_label':                 guest_label,
+               'id':                          results['id'],
+               'name':                        name,
+               'person_capacity':             person_capacity,
+               'photo_count':                 photo_count,
+               'host_name':                   host_name,
+               'languages':                   languages,
+               'room_and_property_type':      room_and_property_type,
+               'room_type_category':          room_type_category,
+               'tier_id':                     tier_id,
                'calendar_last_updated_at':
-                                         calendar_last_updated_at,
-               'min_nights':             min_nights,
-               'has_we_work_location':   has_we_work_location,
+                                              calendar_last_updated_at,
+               'min_nights':                  min_nights,
+               'has_we_work_location':        has_we_work_location,
                'is_business_travel_ready':
-                                         is_business_travel_ready,
+                                              is_business_travel_ready,
                'localized_check_in_time_window':
-                                         localized_check_in_time_window,
+                                              localized_check_in_time_window,
                'localized_check_out_time':
-                                         localized_check_out_time,
-               'lat':                    lat,
-               'lng':                    lng,
-               'neighborhood_id':        neighborhood_id,
-               'license':                license_number,
-               'requires_license':       requires_license,
+                                              localized_check_out_time,
+               'lat':                         lat,
+               'lng':                         lng,
+               'neighborhood_id':             neighborhood_id,
+               'license':                     license_number,
+               'requires_license':            requires_license,
                'support_cleaner_living_wage':
-                                         support_cleaner_living_wage,
+                                              support_cleaner_living_wage,
                'host_other_property_review_count':
                                               host_other_property_review_count,
                'listing_review_count':        listing_review_count,
@@ -211,7 +212,6 @@ def get_booking_info(listing_id, min_nights, max_guests):
 
     url = 'https://www.airbnb.com/api/v2/pdp_listing_booking_details'
     for number_of_adults in range(1, max_guests + 1):
-        print("number of adults", number_of_adults)
         params = {'_format':            'for_web_with_date',
                   'key':                'd306zoyjsyarp7ifhu67rjxn52tv0t20',
                   'listing_id':         listing_id,
@@ -246,11 +246,9 @@ def get_booking_info(listing_id, min_nights, max_guests):
                         non_refundable_discount_amount = policy[key]
                 cancelation_policies.append(features)
 
-        print("extra guest fee", results['extra_guest_fee']['amount'])
         if results['extra_guest_fee']['amount'] != 0:
             extra_guest_fee = results['extra_guest_fee'][
                                   'amount'] / min_nights
-            print(extra_guest_fee)
             break
 
         counter += 1
@@ -262,3 +260,18 @@ def get_booking_info(listing_id, min_nights, max_guests):
             non_refundable_discount_amount, extra_guest_fee]
 
     return data
+
+
+def get_all_listing_info(listing_id):
+    listing = get_listing_info(listing_id)
+    booking_info = get_booking_info(listing_id, listing['min_nights'],
+                                    listing['person_capacity'])
+
+    listing['cleaning_fee'] = booking_info[0]
+    listing['cancelation_policies'] = booking_info[1]
+    listing['non_refundable_discount_rate'] = booking_info[2]
+    listing['extra_guest_fee'] = booking_info[3]
+
+    df = pd.DataFrame({k: [v] for k, v in listing.items()})
+
+    return df
