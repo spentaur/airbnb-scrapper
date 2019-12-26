@@ -188,12 +188,13 @@ def get_listing_info(listing_id):
 
 def get_only_certain_attr(list_to_filter, keys):
     tmp_list = []
-    for value in list_to_filter:
-        features = {}
-        for key in keys:
-            features[key] = value[key]
-        tmp_list.append(features)
-    return tmp_list
+    if list_to_filter:
+        for value in list_to_filter:
+            features = {}
+            for key in keys:
+                features[key] = value[key]
+            tmp_list.append(features)
+        return tmp_list
 
 
 def get_booking_info(listing_id, min_nights, max_guests):
@@ -207,6 +208,7 @@ def get_booking_info(listing_id, min_nights, max_guests):
     cancelation_policies = []
     non_refundable_discount_amount = 0
     extra_guest_fee = 0
+    extra_guess_fee_at = 0
 
     counter = 0
 
@@ -249,6 +251,7 @@ def get_booking_info(listing_id, min_nights, max_guests):
         if results['extra_guest_fee']['amount'] != 0:
             extra_guest_fee = results['extra_guest_fee'][
                                   'amount'] / min_nights
+            extra_guess_fee_at = number_of_adults - 1
             break
 
         counter += 1
@@ -257,7 +260,8 @@ def get_booking_info(listing_id, min_nights, max_guests):
         sleep(sleep_for)
 
     data = [cleaning_fee, cancelation_policies,
-            non_refundable_discount_amount, extra_guest_fee]
+            non_refundable_discount_amount, extra_guest_fee,
+            extra_guess_fee_at]
 
     return data
 
@@ -271,6 +275,7 @@ def get_all_listing_info(listing_id):
     listing['cancelation_policies'] = booking_info[1]
     listing['non_refundable_discount_rate'] = booking_info[2]
     listing['extra_guest_fee'] = booking_info[3]
+    listing['extra_guess_fee_at_greater_than'] = booking_info[4]
 
     df = pd.DataFrame({k: [v] for k, v in listing.items()})
 

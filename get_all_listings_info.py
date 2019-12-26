@@ -1,4 +1,10 @@
+from random import uniform
+from time import sleep
+from time import time
+
 import pandas as pd
+
+from listing_info import get_all_listing_info
 
 # TODO function to loop through all listing id's
 # TODO retries on getting listing info if not 200
@@ -7,4 +13,18 @@ import pandas as pd
 # TODO get calendar info as well
 
 if __name__ == '__main__':
-    ids = pd.read_csv('chicago_listing_ids.csv')
+    ids = pd.read_csv('chicago_listing_ids.csv')['ids'].tolist()
+
+    df = pd.DataFrame()
+
+    for listing_id in ids:
+        start = time()
+        print("listing id:", listing_id)
+        listing = get_all_listing_info(listing_id)
+        df.append(listing)
+        df.to_csv("chicago_listings.csv")
+        sleep_for = uniform(10, 30)
+        print('sleeping for:', sleep_for)
+        sleep(sleep_for)
+        print(f"this listing took: {time() - start} seconds")
+        print("\n")
