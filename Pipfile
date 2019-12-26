@@ -11,6 +11,7 @@ scrapy = "*"
 requests = "*"
 boto3 = "*"
 python-dotenv = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.7"

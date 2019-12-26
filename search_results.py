@@ -1,10 +1,11 @@
-import requests
-from random import uniform
-from time import sleep
 import csv
 import os
-from dotenv import load_dotenv
+from random import uniform
+from time import sleep
+
+import requests
 from boto3 import session
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -41,6 +42,14 @@ if __name__ == '__main__':
     total_estimated_listings = 0
     # total actual listings
     total_actual_listings = 0
+
+    # max attempts
+    attempts = 0
+    max_attempts = 10
+
+    estimated_number_of_pages = None
+
+    estimated_listings_in_range = None
 
     for price_min, price_max in ranges:
         # print price range
@@ -82,9 +91,8 @@ if __name__ == '__main__':
             # make the actual request
             r = requests.get(url, params=params)
 
-            # attempts
+            # reset attempts
             attempts = 0
-            max_attempts = 10
 
             # check the status code
             status = r.status_code
@@ -116,8 +124,8 @@ if __name__ == '__main__':
                     print("estimated number of pages:",
                           estimated_number_of_pages)
                     print("\n")
-
-                print(f"page: {page} / {estimated_number_of_pages}")
+                if estimated_number_of_pages:
+                    print(f"page: {page} / {estimated_number_of_pages}")
 
                 # update has next page, this will break the while loop. i'm
                 # pretty sure this is always returned, i should verify that tho
@@ -173,8 +181,9 @@ if __name__ == '__main__':
                     total_actual_listings += listings_per_range
                     print("\n")
                     print("actual total for range:", listings_per_range)
-                    print("amount missing:", estimated_listings_in_range -
-                          listings_per_range)
+                    if estimated_listings_in_range:
+                        print("amount missing:", estimated_listings_in_range -
+                              listings_per_range)
                     print("----------------------------------------------")
             else:
                 # if the status code is not 200, something went wrong and
@@ -191,8 +200,10 @@ if __name__ == '__main__':
                 print('sleeping for:', sleep_for)
                 sleep(sleep_for)
         print("\n")
+
         if attempts >= max_attempts:
             break
 
     print("total estimated listings:", total_estimated_listings)
     print("total actual listings:", total_actual_listings)
+    print("len of listing ids", len(listing_ids))
