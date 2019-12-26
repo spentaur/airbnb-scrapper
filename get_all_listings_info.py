@@ -1,4 +1,4 @@
-from random import uniform
+from random import uniform, shuffle
 from time import sleep
 from time import time
 
@@ -14,6 +14,7 @@ from listing_info import get_all_listing_info
 
 if __name__ == '__main__':
     ids = pd.read_csv('chicago_listing_ids.csv')['ids'].tolist()
+    shuffle(ids)
 
     df = pd.DataFrame()
 
@@ -21,10 +22,10 @@ if __name__ == '__main__':
         start = time()
         print("listing id:", listing_id)
         listing = get_all_listing_info(listing_id)
-        df.append(listing)
-        df.to_csv("chicago_listings.csv")
-        sleep_for = uniform(10, 30)
-        print('sleeping for:', sleep_for)
-        sleep(sleep_for)
-        print(f"this listing took: {time() - start} seconds")
-        print("\n")
+        if listing:
+            df = pd.concat([df, listing])
+            df.to_csv("chicago_listings.csv")
+            sleep_for = uniform(1, 5)
+            sleep(sleep_for)
+            print(f"this listing took: {time() - start} seconds")
+            print("\n")
