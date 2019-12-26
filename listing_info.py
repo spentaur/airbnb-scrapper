@@ -1,4 +1,11 @@
+import datetime
+from random import uniform
+from time import sleep
+
 import requests
+
+
+# TODO check status and sleep
 
 
 def get_listing_info(listing_id):
@@ -21,7 +28,7 @@ def get_listing_info(listing_id):
     person_capacity = results['person_capacity']
     photo_count = len(results['photos'])
     host_name = results['primary_host']['host_name']
-    has_languages = len(results['primary_host']['languages']) > 0
+    languages = results['primary_host']['languages']
     room_and_property_type = results['room_and_property_type']
     room_type_category = results['room_type_category']
     tier_id = results['tier_id']
@@ -77,37 +84,37 @@ def get_listing_info(listing_id):
                                                   'appreciation_tags'],
                                               appreciation_tags_keys)
 
-    listing = {'additional_house_rules':      additional_house_rules,
-               'bathroom_label':              bathroom_label,
-               'bed_label':                   bed_label,
-               'bedroom_label':               bedroom_label,
-               'guest_label':                 guest_label,
-               'id':                          results['id'],
-               'name':                        name,
-               'person_capacity':             person_capacity,
-               'photo_count':                 photo_count,
-               'host_name':                   host_name,
-               'has_languages':               has_languages,
-               'room_and_property_type':      room_and_property_type,
-               'room_type_category':          room_type_category,
-               'tier_id':                     tier_id,
+    listing = {'additional_house_rules': additional_house_rules,
+               'bathroom_label':         bathroom_label,
+               'bed_label':              bed_label,
+               'bedroom_label':          bedroom_label,
+               'guest_label':            guest_label,
+               'id':                     results['id'],
+               'name':                   name,
+               'person_capacity':        person_capacity,
+               'photo_count':            photo_count,
+               'host_name':              host_name,
+               'languages':              languages,
+               'room_and_property_type': room_and_property_type,
+               'room_type_category':     room_type_category,
+               'tier_id':                tier_id,
                'calendar_last_updated_at':
-                                              calendar_last_updated_at,
-               'min_nights':                  min_nights,
-               'has_we_work_location':        has_we_work_location,
+                                         calendar_last_updated_at,
+               'min_nights':             min_nights,
+               'has_we_work_location':   has_we_work_location,
                'is_business_travel_ready':
-                                              is_business_travel_ready,
+                                         is_business_travel_ready,
                'localized_check_in_time_window':
-                                              localized_check_in_time_window,
+                                         localized_check_in_time_window,
                'localized_check_out_time':
-                                              localized_check_out_time,
-               'lat':                         lat,
-               'lng':                         lng,
-               'neighborhood_id':             neighborhood_id,
-               'license':                     license_number,
-               'requires_license':            requires_license,
+                                         localized_check_out_time,
+               'lat':                    lat,
+               'lng':                    lng,
+               'neighborhood_id':        neighborhood_id,
+               'license':                license_number,
+               'requires_license':       requires_license,
                'support_cleaner_living_wage':
-                                              support_cleaner_living_wage,
+                                         support_cleaner_living_wage,
                'host_other_property_review_count':
                                               host_other_property_review_count,
                'listing_review_count':        listing_review_count,
@@ -186,3 +193,72 @@ def get_only_certain_attr(list_to_filter, keys):
             features[key] = value[key]
         tmp_list.append(features)
     return tmp_list
+
+
+def get_booking_info(listing_id, min_nights, max_guests):
+    today = datetime.date.today()
+    delta = datetime.timedelta(days=14)
+    delta_min_nights = datetime.timedelta(days=min_nights)
+    check_in = (today + delta).strftime("%Y-%m-%d")
+    check_out = ((today + delta) + delta_min_nights).strftime("%Y-%m-%d")
+
+    cleaning_fee = 0
+    cancelation_policies = []
+    non_refundable_discount_amount = 0
+    extra_guest_fee = 0
+
+    counter = 0
+
+    url = 'https://www.airbnb.com/api/v2/pdp_listing_booking_details'
+    for number_of_adults in range(1, max_guests + 1):
+        print("number of adults", number_of_adults)
+        params = {'_format':            'for_web_with_date',
+                  'key':                'd306zoyjsyarp7ifhu67rjxn52tv0t20',
+                  'listing_id':         listing_id,
+                  'check_in':           check_in,
+                  'check_out':          check_out,
+                  'number_of_children': 0,
+                  'number_of_infants':  0,
+                  'number_of_adults':   number_of_adults}
+        # TODO retries
+        r = requests.get(url, params)
+        results = r.json()['pdp_listing_booking_details'][0]
+
+        if counter == 0:
+            for price_item in results['price']['price_items']:
+                if price_item['type'] == "CLEANING_FEE":
+                    cleaning_fee = price_item['total']['amount']
+
+            policy_keys = ['localized_cancellation_policy_name',
+                           'cancellation_policy_label',
+                           'cancellation_policy_price_type',
+                           'cancellation_policy_price_factor',
+                           'cancellation_policy_id',
+                           'book_it_module_tooltip',
+                           'subtitle']
+            for policy in results['cancellation_policies']:
+                features = {}
+                for key in policy_keys:
+                    features[key] = policy[key]
+                    if (key == 'cancellation_policy_price_factor') and policy[
+                        key] \
+                            != 0:
+                        non_refundable_discount_amount = policy[key]
+                cancelation_policies.append(features)
+
+        print("extra guest fee", results['extra_guest_fee']['amount'])
+        if results['extra_guest_fee']['amount'] != 0:
+            extra_guest_fee = results['extra_guest_fee'][
+                                  'amount'] / min_nights
+            print(extra_guest_fee)
+            break
+
+        counter += 1
+
+        sleep_for = uniform(2, 20)
+        sleep(sleep_for)
+
+    data = [cleaning_fee, cancelation_policies,
+            non_refundable_discount_amount, extra_guest_fee]
+
+    return data
