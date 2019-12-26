@@ -20,7 +20,7 @@ def get_listing_info(listing_id):
     name = results['name']
     person_capacity = results['person_capacity']
     photo_count = len(results['photos'])
-    host_name = results['host_name']
+    host_name = results['primary_host']['host_name']
     has_languages = len(results['primary_host']['languages']) > 0
     room_and_property_type = results['room_and_property_type']
     room_type_category = results['room_type_category']
