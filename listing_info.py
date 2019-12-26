@@ -74,7 +74,7 @@ def get_listing_info(listing_id):
         review_summaries_keys)
     appreciation_tags_keys = ['localized_text', 'localized_count_string']
     appreciation_tags = get_only_certain_attr(results['reviews_module'][
-                                                  'app  reciation_tags'],
+                                                  'appreciation_tags'],
                                               appreciation_tags_keys)
 
     listing = {'additional_house_rules':      additional_house_rules,
