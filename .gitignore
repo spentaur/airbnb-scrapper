@@ -129,8 +129,7 @@ dmypy.json
 .pyre/
 
 # ignore csv
-.csv
+*.csv
 
 # notebooks
-.ipynb
-.ipynb_checkpoints
+*.ipynb
