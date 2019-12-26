@@ -168,7 +168,11 @@ def get_listing_info(listing_id):
     for key in guest_controls_keys:
         listing[key] = results['guest_controls'][key]
 
-    # TODO is_plus
+    if results['education_modules']['plus_education_module_v1'] or \
+            results['education_modules']['plus_education_module_v2']:
+        listing['is_plus'] = True
+    else:
+        listing['is_plus'] = False
 
 
 def get_only_certain_attr(list_to_filter, keys):
