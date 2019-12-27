@@ -6,11 +6,8 @@ import pandas as pd
 
 from listing_info import get_all_listing_info
 
-# TODO function to loop through all listing id's
-# TODO retries on getting listing info if not 200
-# TODO think about where i want the timeouts to be
-# TODO saving listing info in csv, how big can it be?
 # TODO get calendar info as well
+# TODO add checkin and checkout dates to df?
 
 if __name__ == '__main__':
     ids = pd.read_csv('chicago_listing_ids.csv')['ids'].tolist()
@@ -22,7 +19,7 @@ if __name__ == '__main__':
         start = time()
         print("listing id:", listing_id)
         listing = get_all_listing_info(listing_id)
-        if listing:
+        if listing is not None:
             df = pd.concat([df, listing])
             df.to_csv("chicago_listings.csv")
             sleep_for = uniform(1, 5)
