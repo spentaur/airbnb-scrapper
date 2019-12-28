@@ -13,6 +13,7 @@
 
 ```
 git clone https://github.com/spentaur/airbnb-scrapper.git
+git clone https://github.com/spentaur/airbnb-data.git
 cd airbnb-scrapper
 sudo chmod a+x ./setup.sh
 sudo ./setup.sh
