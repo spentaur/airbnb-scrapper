@@ -5,7 +5,7 @@ from time import time
 
 import pandas as pd
 
-from listing_info import get_all_listing_info
+from get_listing_info import get_all_listing_info
 
 if __name__ == '__main__':
 

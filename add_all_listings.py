@@ -7,7 +7,7 @@ import pandas as pd
 from boto3 import session
 from dotenv import load_dotenv
 
-from listing_info import get_all_listing_info
+from get_listing_info import get_all_listing_info
 
 load_dotenv()
 
