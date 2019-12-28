@@ -292,8 +292,8 @@ def get_booking_info(listing_id, min_nights, max_guests):
             counter += 1
             number_of_adults += 1
 
-            sleep_for = uniform(4, 20)
-            sleep(sleep_for)
+            # sleep_for = uniform(4, 20)
+            # sleep(sleep_for)
         else:
             # if the status code is not 200, something went wrong and
             # let's just sleep and the request will be repeated. this
@@ -321,7 +321,7 @@ def get_booking_info(listing_id, min_nights, max_guests):
         return 420
 
 
-def get_comment_info(listing_id, number_of_reviews):
+def get_reviews_info(listing_id, number_of_reviews):
     url = 'https://www.airbnb.com/api/v2/homes_pdp_reviews'
     # TODO add key to a variable
     params = {'key':        'd306zoyjsyarp7ifhu67rjxn52tv0t20',
@@ -383,11 +383,11 @@ def get_all_listing_info(listing_id):
                 "%Y-%m-%d")
 
             comment_count = listing['visible_review_count']
-            comment_info = get_comment_info(listing_id, comment_count)
+            comment_info = get_reviews_info(listing_id, comment_count)
             if comment_info != 420:
                 newest_comment, oldest_comment = comment_info
-                listing['newest_comment_date'] = newest_comment
-                listing['oldest_comment_date'] = oldest_comment
+                listing['newest_reviews_date'] = newest_comment
+                listing['oldest_reviews_date'] = oldest_comment
 
             df = pd.DataFrame({k: [v] for k, v in listing.items()})
 
