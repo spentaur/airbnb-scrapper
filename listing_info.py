@@ -201,7 +201,7 @@ def get_listing_info(listing_id, attempts=0):
             attempts += 1
             print("listing info")
             print("status code", status)
-            sleep_for = uniform(1800, 3600)
+            sleep_for = uniform(1, 10)
             print('sleeping for:', sleep_for)
             sleep(sleep_for)
             get_listing_info(listing_id, attempts)
@@ -307,7 +307,7 @@ def get_booking_info(listing_id, min_nights, max_guests):
                 break
             print("booking info")
             print("status code", status)
-            sleep_for = uniform(1800, 3600)
+            sleep_for = uniform(1, 10)
             print('sleeping for:', sleep_for)
             sleep(sleep_for)
 
@@ -358,7 +358,7 @@ def get_reviews_info(listing_id, number_of_reviews):
             attempts += 1
             print("comments")
             print("status code", r.status_code)
-            sleep_for = uniform(1800, 3600)
+            sleep_for = uniform(1, 10)
             print('sleeping for:', sleep_for)
             sleep(sleep_for)
 
