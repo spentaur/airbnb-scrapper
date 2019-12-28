@@ -1,3 +1,4 @@
+import datetime
 import os
 from os import path
 from random import shuffle
@@ -18,6 +19,8 @@ if __name__ == '__main__':
     # credentials for digital ocean
     ACCESS_ID = os.getenv("ACCESS_ID")
     SECRET_KEY = os.getenv("SECRET_KEY")
+    today = datetime.date.today()
+    id_date = input("Date Id's Collected: ")
     # setting up for digital ocean upload
     session = session.Session()
     client = session.client('s3',
@@ -28,13 +31,16 @@ if __name__ == '__main__':
 
     ids_id = input("Which set of ids to get: ")
     ids = set(
-        pd.read_csv(f'./airbnb-dataids/chicago_listing_ids_{ids_id}.csv')[
+        pd.read_csv(f'./airbnb-data/ids/chicago/'
+                    f'{id_date}/chicago_listing_ids'
+                    f'_{ids_id}.csv')[
             'ids'].tolist())
 
     if path.exists(
-            f"./airbnb-datalistings/chicago/chicago_listings_{ids_id}.csv"):
+            f"./airbnb-data/listings/chicago/{str(today)}/chicago_listings"
+            f"_{ids_id}.csv"):
         listings = pd.read_csv(
-            f"./airbnb-datalistings/chicago/chicago_listings"
+            f"./airbnb-data/listings/chicago/{str(today)}/chicago_listings"
             f"_{ids_id}.csv")
         listing_ids = set(listings['id'].tolist())
     else:
@@ -51,15 +57,16 @@ if __name__ == '__main__':
         listing = get_all_listing_info(listing_id)
         if listing is not None:
             listings = pd.concat([listings, listing])
-            listings.to_csv(f"./airbnb-datalistings/chicago/chicago_listings"
-                            f"_{ids_id}.csv",
-                            index=False)
+            listings.to_csv(
+                f"./airbnb-data/listings/chicago/{str(today)}/chicago_listings"
+                f"_{ids_id}.csv",
+                index=False)
             print(f"this listing took: {time() - start} seconds")
             print("\n")
 
             client.upload_file(
-                f"./airbnb-datalistings/chicago/chicago_listings"
+                f"./airbnb-data/listings/chicago/{str(today)}/chicago_listings"
                 f"_{ids_id}.csv",
                 'spentaur',
-                f'airbnb/listings/chicago/chicago_listings_'
+                f'airbnb/listings/chicago/{str(today)}/chicago_listings_'
                 f'{ids_id}.csv')

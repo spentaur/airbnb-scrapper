@@ -1,4 +1,5 @@
 import csv
+import datetime
 import os
 from random import uniform
 from time import sleep
@@ -10,6 +11,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 if __name__ == '__main__':
+
+    today = datetime.date.today()
 
     # credentials for digital ocean
     ACCESS_ID = os.getenv("ACCESS_ID")
@@ -23,6 +26,14 @@ if __name__ == '__main__':
                             aws_access_key_id=ACCESS_ID,
                             aws_secret_access_key=SECRET_KEY)
 
+    # list of price ranges that returns less than 300 results
+    ranges = [(10, 22), (23, 25), (26, 29), (30, 33), (34, 36), (37, 39),
+              (40, 42), (43, 45), (46, 49), (50, 50), (51, 55), (56, 59),
+              (60, 61), (62, 64), (65, 67), (68, 69), (70, 74), (75, 76),
+              (77, 79), (80, 82), (83, 85), (86, 88), (89, 89), (90, 94),
+              (95, 98), (99, 99), (100, 105), (106, 110), (111, 119),
+              (120, 125), (126, 135), (136, 149), (150, 155), (156, 181),
+              (182, 200), (201, 250), (251, 399), (400, 600), (601, None)]
     # url
     url = 'https://www.airbnb.com/api/v2/explore_tabs'
 
@@ -43,15 +54,14 @@ if __name__ == '__main__':
 
     estimated_listings_in_range = None
 
-    for price_min, price_max in ((10, 99), (100, None)):
+    for price_min, price_max in ranges:
         # print price range
         print(f"price range: {price_min} - {price_max}")
         # url query string
         params = {'_format':         'for_explore_search_web',
-                  'currency':        'USD',
-                  'items_per_grid':  '18',
+                  'currency':        'USD', 'items_per_grid': '18',
                   'key':             'd306zoyjsyarp7ifhu67rjxn52tv0t20',
-                  'query':           'Champaign, IL, United States',
+                  'query':           'Chicago, IL, United States',
                   'search_type':     'pagination',
                   'selected_tab_id': 'home_tab',
                   'price_min':       price_min}
@@ -147,14 +157,17 @@ if __name__ == '__main__':
                 # save all listing id's to csv, this is not the best way do
                 # it because i'm constantly saving the full array but it's
                 # whatever it's only 10k records and one number so oh well
-                with open('data/ids/champaign/champaign_listing_ids.csv', 'w',
-                          newline='') as f:
+                with open(f'airbnb-data/ids/chicago/'
+                          f'{str(today)}/chicago_listing_ids.csv',
+                          'w', newline='') as f:
                     writer = csv.writer(f, delimiter='\n')
                     writer.writerow(listing_ids)
 
                 client.upload_file(
-                    'data/ids/champaign/champaign_listing_ids.csv', 'spentaur',
-                    'airbnb/ids/champaign_listing_ids.csv')
+                    f'airbnb-data/ids/chicago/'
+                    f'{str(today)}/chicago_listing_ids.csv',
+                    'spentaur',
+                    f'airbnb/ids/chicago/{str(today)}/chicago_listing_ids.csv')
 
                 # another insurance that has next page is right, if i get
                 # less than 18 there's no way there's a next page right?
