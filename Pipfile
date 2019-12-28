@@ -13,6 +13,7 @@ boto3 = "*"
 python-dotenv = "*"
 pandas = "*"
 jupyter = "*"
+python-dateutil = "*"
 
 [requires]
 python_version = "3.7"

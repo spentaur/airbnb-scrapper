@@ -4,6 +4,7 @@ from time import sleep
 
 import pandas as pd
 import requests
+from dateutil.parser import parse
 
 
 def get_listing_info(listing_id, attempts=0):
@@ -198,8 +199,9 @@ def get_listing_info(listing_id, attempts=0):
 
         if attempts <= max_attempts:
             attempts += 1
+            print("listing info")
             print("status code", status)
-            sleep_for = uniform(20, 45)
+            sleep_for = uniform(1800, 3600)
             print('sleeping for:', sleep_for)
             sleep(sleep_for)
             get_listing_info(listing_id, attempts)
@@ -251,7 +253,6 @@ def get_booking_info(listing_id, min_nights, max_guests):
         # check the status code
         status = r.status_code
         if status == 200:
-            number_of_adults += 1
             attempts = 0
             results = r.json()['pdp_listing_booking_details'][0]
 
@@ -289,8 +290,9 @@ def get_booking_info(listing_id, min_nights, max_guests):
                 break
 
             counter += 1
+            number_of_adults += 1
 
-            sleep_for = uniform(2, 10)
+            sleep_for = uniform(4, 20)
             sleep(sleep_for)
         else:
             # if the status code is not 200, something went wrong and
@@ -303,26 +305,69 @@ def get_booking_info(listing_id, min_nights, max_guests):
             if attempts > max_attempts:
                 broken = True
                 break
+            print("booking info")
             print("status code", status)
-            sleep_for = uniform(20, 45)
+            sleep_for = uniform(1800, 3600)
             print('sleeping for:', sleep_for)
             sleep(sleep_for)
 
     if not broken:
         data = [cleaning_fee, cancelation_policies,
                 non_refundable_discount_amount, extra_guest_fee,
-                extra_guest_fee_at]
+                extra_guest_fee_at, check_in, check_out]
 
         return data
     else:
         return 420
 
 
+def get_comment_info(listing_id, number_of_reviews):
+    url = 'https://www.airbnb.com/api/v2/homes_pdp_reviews'
+    # TODO add key to a variable
+    params = {'key':        'd306zoyjsyarp7ifhu67rjxn52tv0t20',
+              'listing_id': listing_id,
+              'limit':      number_of_reviews}
+
+    max_attempts = 10
+    attempts = 0
+
+    while attempts < max_attempts:
+        r = requests.get(url=url, params=params)
+        if r.status_code == 200:
+            reviews = r.json()['reviews']
+
+            assert (len(reviews) == number_of_reviews)
+
+            oldest = None
+            newest = None
+            for review in reviews:
+                created_at = parse(review['created_at'])
+                if oldest:
+                    oldest = min(created_at, oldest)
+                else:
+                    oldest = created_at
+                if newest:
+                    newest = max(created_at, newest)
+                else:
+                    newest = created_at
+
+            # TODO i dont think i need this since i'm returning?
+            attempts = max_attempts
+            return newest, oldest
+        else:
+            attempts += 1
+            print("comments")
+            print("status code", r.status_code)
+            sleep_for = uniform(1800, 3600)
+            print('sleeping for:', sleep_for)
+            sleep(sleep_for)
+
+    return 420
+
+
 def get_all_listing_info(listing_id):
     listing = get_listing_info(listing_id)
     if listing != 420:
-        sleep_for = uniform(2, 5)
-        sleep(sleep_for)
         booking_info = get_booking_info(listing_id, listing['min_nights'],
                                         listing['person_capacity'])
 
@@ -332,6 +377,17 @@ def get_all_listing_info(listing_id):
             listing['non_refundable_discount_rate'] = booking_info[2]
             listing['extra_guest_fee'] = booking_info[3]
             listing['extra_guess_fee_at_greater_than'] = booking_info[4]
+            listing['check_in'] = booking_info[5]
+            listing['check_out'] = booking_info[6]
+            listing['date_gathered'] = datetime.date.today().strftime(
+                "%Y-%m-%d")
+
+            comment_count = listing['visible_review_count']
+            comment_info = get_comment_info(listing_id, comment_count)
+            if comment_info != 420:
+                newest_comment, oldest_comment = comment_info
+                listing['newest_comment_date'] = newest_comment
+                listing['oldest_comment_date'] = oldest_comment
 
             df = pd.DataFrame({k: [v] for k, v in listing.items()})
 

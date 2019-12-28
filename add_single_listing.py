@@ -18,7 +18,6 @@ if __name__ == '__main__':
 
     listing_id = input("Listing ID: ")
     start = time()
-    print("listing id:", listing_id)
     listing = get_all_listing_info(listing_id)
     if listing is not None:
         listings = pd.concat([listings, listing])
