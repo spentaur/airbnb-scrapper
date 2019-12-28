@@ -9,5 +9,3 @@ echo "ACCESS_ID='${access_id}'" >> .env
 echo "SECRET_KEY='${secret_key}'" >> .env
 pipenv --python /usr/bin/python3
 pipenv shell
-pipenv install
-python get_all_lisitngs_info.py
