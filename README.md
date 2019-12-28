@@ -26,7 +26,7 @@ python add_all_listings.py
 2) better documentation
 3) handle retries better
 4) get calendar information
-5) move data to separate repo
+5) ~~move data to separate repo~~
 6) tests
 7) could this be containerized?
 8) 403 errors are listings that no longer exists, handle better
@@ -34,3 +34,4 @@ python add_all_listings.py
 10) make it so you can change cities
     - figure out how to get all listings from big cities where even if price
      is $89 min and max, results are still over 300
+11) add single listing upload to digital ocean

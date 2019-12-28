@@ -154,7 +154,7 @@ if __name__ == '__main__':
 
                 client.upload_file(
                     'data/ids/champaign/champaign_listing_ids.csv', 'spentaur',
-                    'airbnb/champaign_listing_ids.csv')
+                    'airbnb/ids/champaign_listing_ids.csv')
 
                 # another insurance that has next page is right, if i get
                 # less than 18 there's no way there's a next page right?
