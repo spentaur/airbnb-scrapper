@@ -10,9 +10,18 @@
 8) python add_all_listings.py
 9) Enter which subset of listing id's you'd like to get information on.
 
+```
+git clone https://github.com/spentaur/airbnb-scrapper.git
+cd airbnb-scrapper
+sudo chmod a+x ./setup.sh
+pipenv install
+python add_all_listings.py
+```
 
 ----
 TODO
 1) search_results should be generalized
 2) better documentation
 3) handle retries better
+4) get calendar information
+5) move data to separate repo
