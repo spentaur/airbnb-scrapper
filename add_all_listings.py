@@ -31,16 +31,16 @@ if __name__ == '__main__':
 
     ids_id = input("Which set of ids to get: ")
     ids = set(
-        pd.read_csv(f'./airbnb-data/ids/chicago/'
+        pd.read_csv(f'../airbnb-data/ids/chicago/'
                     f'{id_date}/chicago_listing_ids'
                     f'_{ids_id}.csv')[
             'ids'].tolist())
 
     if path.exists(
-            f"./airbnb-data/listings/chicago/{str(today)}/chicago_listings"
+            f"../airbnb-data/listings/chicago/{str(today)}/chicago_listings"
             f"_{ids_id}.csv"):
         listings = pd.read_csv(
-            f"./airbnb-data/listings/chicago/{str(today)}/chicago_listings"
+            f"../airbnb-data/listings/chicago/{str(today)}/chicago_listings"
             f"_{ids_id}.csv")
         listing_ids = set(listings['id'].tolist())
     else:
@@ -58,14 +58,16 @@ if __name__ == '__main__':
         if listing is not None:
             listings = pd.concat([listings, listing])
             listings.to_csv(
-                f"./airbnb-data/listings/chicago/{str(today)}/chicago_listings"
+                f"../airbnb-data/listings/chicago/"
+                f"{str(today)}/chicago_listings"
                 f"_{ids_id}.csv",
                 index=False)
             print(f"this listing took: {time() - start} seconds")
             print("\n")
 
             client.upload_file(
-                f"./airbnb-data/listings/chicago/{str(today)}/chicago_listings"
+                f"../airbnb-data/listings/chicago/"
+                f"{str(today)}/chicago_listings"
                 f"_{ids_id}.csv",
                 'spentaur',
                 f'airbnb/listings/chicago/{str(today)}/chicago_listings_'

@@ -157,14 +157,14 @@ if __name__ == '__main__':
                 # save all listing id's to csv, this is not the best way do
                 # it because i'm constantly saving the full array but it's
                 # whatever it's only 10k records and one number so oh well
-                with open(f'./airbnb-data/ids/chicago/'
+                with open(f'../airbnb-data/ids/chicago/'
                           f'{str(today)}/chicago_listing_ids.csv',
                           'w', newline='') as f:
                     writer = csv.writer(f, delimiter='\n')
                     writer.writerow(listing_ids)
 
                 client.upload_file(
-                    f'./airbnb-data/ids/chicago/'
+                    f'../airbnb-data/ids/chicago/'
                     f'{str(today)}/chicago_listing_ids.csv',
                     'spentaur',
                     f'airbnb/ids/chicago/{str(today)}/chicago_listing_ids.csv')
