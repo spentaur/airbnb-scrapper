@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     # listing id's that are going to get saved to a csv, maybe not the most
     # efficient but it's only like 10k records and only just id's so oh well
-    listing_ids = set()
+    listing_ids = []
 
     # total estimated listings
     total_estimated_listings = 0
@@ -65,7 +65,7 @@ if __name__ == '__main__':
         # this is just to make sure that i'm not getting the same results if
         # i set the offset to something, because i've noticed that
         # "has_next_page" can't always be trusted
-        prev_page_ids = set()
+        prev_page_ids = []
         has_next_page = True
 
         # how many listings per range actually gotten
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
             # save the listing id's for the current page in order to check
             # with the last page id's
-            page_listing_ids = set()
+            page_listing_ids = []
 
             # make the actual request
             r = requests.get(url, params=params)
@@ -134,8 +134,8 @@ if __name__ == '__main__':
                         tmp_listings = section['listings']
                         for listing in tmp_listings:
                             # loop through the listing and save the id's
-                            page_listing_ids.add(listing['listing']['id'])
-                            listing_ids.add(listing['listing']['id'])
+                            page_listing_ids.append(listing['listing']['id'])
+                            listing_ids.append(listing['listing']['id'])
 
                 # if the page is the same as the last one then it has no
                 # next page
