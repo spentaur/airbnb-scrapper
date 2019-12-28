@@ -28,3 +28,4 @@ TODO
 5) move data to separate repo
 6) tests
 7) could this be containerized?
+8) 403 errors are listings that no longer exists, handle better
