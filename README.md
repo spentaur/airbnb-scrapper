@@ -21,6 +21,9 @@ pipenv install
 python add_all_listings.py
 ```
 
+Make sure that the proper date directory is made
+`mkdir airbnb-data/CATEGORY/CITY/date +"%m-%d-%Y"`
+
 ----
 #### TODO
 1) search_results should be generalized
