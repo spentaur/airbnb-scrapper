@@ -30,8 +30,9 @@ if __name__ == '__main__':
     ids = set(pd.read_csv(f'data/ids/chicago_listing_ids_{ids_id}.csv')[
                   'ids'].tolist())
 
-    if path.exists(f"data/listings/chicago_listings_{ids_id}.csv"):
-        listings = pd.read_csv(f"data/listings/chicago_listings_{ids_id}.csv")
+    if path.exists(f"data/listings/chicago/chicago_listings_{ids_id}.csv"):
+        listings = pd.read_csv(f"data/listings/chicago/chicago_listings"
+                               f"_{ids_id}.csv")
         listing_ids = set(listings['id'].tolist())
     else:
         listings = pd.DataFrame()
@@ -47,12 +48,14 @@ if __name__ == '__main__':
         listing = get_all_listing_info(listing_id)
         if listing is not None:
             listings = pd.concat([listings, listing])
-            listings.to_csv(f"data/listings/chicago_listings_{ids_id}.csv",
+            listings.to_csv(f"data/listings/chicago/chicago_listings"
+                            f"_{ids_id}.csv",
                             index=False)
             print(f"this listing took: {time() - start} seconds")
             print("\n")
 
-            client.upload_file(f"data/listings/chicago_listings_{ids_id}.csv",
+            client.upload_file(f"data/listings/chicago/chicago_listings"
+                               f"_{ids_id}.csv",
                                'spentaur',
-                               f'airbnb/listings/chicago_listings_'
+                               f'airbnb/listings/chicago/chicago_listings_'
                                f'{ids_id}.csv')
