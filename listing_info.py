@@ -326,7 +326,7 @@ def get_reviews_info(listing_id, number_of_reviews):
     # TODO add key to a variable
     params = {'key':        'd306zoyjsyarp7ifhu67rjxn52tv0t20',
               'listing_id': listing_id,
-              'limit':      number_of_reviews}
+              'limit':      number_of_reviews + 2}
 
     max_attempts = 10
     attempts = 0
