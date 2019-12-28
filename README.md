@@ -14,6 +14,7 @@
 git clone https://github.com/spentaur/airbnb-scrapper.git
 cd airbnb-scrapper
 sudo chmod a+x ./setup.sh
+sudo ./setup.sh
 pipenv install
 python add_all_listings.py
 ```
@@ -25,3 +26,5 @@ TODO
 3) handle retries better
 4) get calendar information
 5) move data to separate repo
+6) tests
+7) could this be containerized?
