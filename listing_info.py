@@ -367,6 +367,8 @@ def get_reviews_info(listing_id, number_of_reviews):
 
 def get_all_listing_info(listing_id):
     listing = get_listing_info(listing_id)
+    # TODO i think it actually reurns none so i need to redo retries,
+    #  just fail if anything else but 200
     if listing != 420:
         booking_info = get_booking_info(listing_id, listing['min_nights'],
                                         listing['person_capacity'])
