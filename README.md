@@ -22,7 +22,7 @@ python add_all_listings.py
 ```
 
 Make sure that the proper date directory is made
-`mkdir airbnb-data/CATEGORY/CITY/date +"%m-%d-%Y"`
+`mkdir airbnb-data/CATEGORY/CITY/date +"%Y-%m-%d"`
 
 ----
 #### TODO
