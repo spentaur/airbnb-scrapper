@@ -1,3 +1,4 @@
+import os
 from os import path
 from random import shuffle
 from time import time
@@ -15,8 +16,8 @@ load_dotenv()
 
 if __name__ == '__main__':
     # credentials for digital ocean
-    ACCESS_ID = input("Access ID: ")
-    SECRET_KEY = input("Secret Key: ")
+    ACCESS_ID = os.getenv("ACCESS_ID")
+    SECRET_KEY = os.getenv("SECRET_KEY")
     # setting up for digital ocean upload
     session = session.Session()
     client = session.client('s3',
@@ -29,8 +30,8 @@ if __name__ == '__main__':
     ids = set(pd.read_csv(f'data/ids/chicago_listing_ids_{ids_id}.csv')[
                   'ids'].tolist())
 
-    if path.exists(f"chicago_listings_{ids_id}.csv"):
-        listings = pd.read_csv(f"chicago_listings_{ids_id}.csv")
+    if path.exists(f"data/listings/chicago_listings_{ids_id}.csv"):
+        listings = pd.read_csv(f"data/listings/chicago_listings_{ids_id}.csv")
         listing_ids = set(listings['id'].tolist())
     else:
         listings = pd.DataFrame()
@@ -46,10 +47,12 @@ if __name__ == '__main__':
         listing = get_all_listing_info(listing_id)
         if listing is not None:
             listings = pd.concat([listings, listing])
-            listings.to_csv(f"chicago_listings_{ids_id}.csv", index=False)
+            listings.to_csv(f"data/listings/chicago_listings_{ids_id}.csv",
+                            index=False)
             print(f"this listing took: {time() - start} seconds")
             print("\n")
 
-            client.upload_file(f"chicago_listings_{ids_id}.csv", 'spentaur',
+            client.upload_file(f"data/listings/chicago_listings_{ids_id}.csv",
+                               'spentaur',
                                f'airbnb/listings/chicago_listings_'
                                f'{ids_id}.csv')
