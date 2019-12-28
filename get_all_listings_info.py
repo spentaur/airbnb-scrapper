@@ -15,6 +15,17 @@ load_dotenv()
 # TODO add checkin and checkout dates to df?
 
 if __name__ == '__main__':
+    # credentials for digital ocean
+    ACCESS_ID = os.getenv("ACCESS_ID")
+    SECRET_KEY = os.getenv("SECRET_KEY")
+    # setting up for digital ocean upload
+    session = session.Session()
+    client = session.client('s3',
+                            region_name='nyc3',
+                            endpoint_url='https://nyc3.digitaloceanspaces.com',
+                            aws_access_key_id=ACCESS_ID,
+                            aws_secret_access_key=SECRET_KEY)
+
     ids_id = input("Which set of ids to get: ")
     ids = set(pd.read_csv(f'data/ids/chicago_listing_ids_{ids_id}.csv')[
                   'ids'].tolist())
@@ -39,17 +50,6 @@ if __name__ == '__main__':
             listings.to_csv(f"chicago_listings_{ids_id}.csv", index=False)
             print(f"this listing took: {time() - start} seconds")
             print("\n")
-            # credentials for digital ocean
-            ACCESS_ID = os.getenv("ACCESS_ID")
-            SECRET_KEY = os.getenv("SECRET_KEY")
-
-            # setting up for digital ocean upload
-            session = session.Session()
-            client = session.client('s3',
-                                    region_name='nyc3',
-                                    endpoint_url='https://nyc3.digitaloceanspaces.com',
-                                    aws_access_key_id=ACCESS_ID,
-                                    aws_secret_access_key=SECRET_KEY)
 
             client.upload_file(f"chicago_listings_{ids_id}.csv", 'spentaur',
                                f'airbnb/listings/chicago_listings_'
