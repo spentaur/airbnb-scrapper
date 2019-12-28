@@ -1,4 +1,3 @@
-import os
 from os import path
 from random import shuffle
 from time import time
@@ -16,8 +15,8 @@ load_dotenv()
 
 if __name__ == '__main__':
     # credentials for digital ocean
-    ACCESS_ID = os.getenv("ACCESS_ID")
-    SECRET_KEY = os.getenv("SECRET_KEY")
+    ACCESS_ID = input("Access ID: ")
+    SECRET_KEY = input("Secret Key: ")
     # setting up for digital ocean upload
     session = session.Session()
     client = session.client('s3',
