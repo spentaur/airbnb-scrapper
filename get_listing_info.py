@@ -197,16 +197,7 @@ def get_listing_info(listing_id, attempts=0):
 
         # increment attempts
 
-        if attempts <= max_attempts:
-            attempts += 1
-            print("listing info")
-            print("status code", status)
-            sleep_for = uniform(1, 10)
-            print('sleeping for:', sleep_for)
-            sleep(sleep_for)
-            get_listing_info(listing_id, attempts)
-        else:
-            return 420
+        return None
 
 
 def get_only_certain_attr(list_to_filter, keys):
