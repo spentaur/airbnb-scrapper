@@ -1,5 +1,6 @@
 ## This is a program set up to run on Digital Ocean and scrape the airbnb api and save listing information to a csv.
-
+----
+#### Get all listings info
 1) Create and ssh into droplet.
 2) git clone https://github.com/spentaur/airbnb-scrapper.git
 3) cd airbnb-scrapper
@@ -20,7 +21,7 @@ python add_all_listings.py
 ```
 
 ----
-TODO
+#### TODO
 1) search_results should be generalized
 2) better documentation
 3) handle retries better
