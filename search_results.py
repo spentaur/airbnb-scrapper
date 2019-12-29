@@ -7,6 +7,7 @@ from time import sleep
 import requests
 from boto3 import session
 from dotenv import load_dotenv
+from iteration_utilities import duplicates
 
 load_dotenv()
 
@@ -37,6 +38,8 @@ if __name__ == '__main__':
     total_estimated_listings = 0
     # total actual listings
     total_actual_listings = 0
+
+    all_listing_ids = []
 
     # max attempts
     attempts = 0
@@ -134,6 +137,8 @@ if __name__ == '__main__':
                             # loop through the listing and save the id's
                             page_listing_ids.add(listing['listing']['id'])
                             listing_ids.add(listing['listing']['id'])
+                            all_listing_ids.append(listing['listing']['id'])
+                print(list(duplicates(all_listing_ids)))
 
                 # if the page is the same as the last one then it has no
                 # next page
