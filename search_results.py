@@ -25,15 +25,6 @@ if __name__ == '__main__':
                             endpoint_url='https://nyc3.digitaloceanspaces.com',
                             aws_access_key_id=ACCESS_ID,
                             aws_secret_access_key=SECRET_KEY)
-
-    # list of price ranges that returns less than 300 results
-    ranges = [(10, 22), (23, 25), (26, 29), (30, 33), (34, 36), (37, 39),
-              (40, 42), (43, 45), (46, 49), (50, 50), (51, 55), (56, 59),
-              (60, 61), (62, 64), (65, 67), (68, 69), (70, 74), (75, 76),
-              (77, 79), (80, 82), (83, 85), (86, 88), (89, 89), (90, 94),
-              (95, 98), (99, 99), (100, 105), (106, 110), (111, 119),
-              (120, 125), (126, 135), (136, 149), (150, 155), (156, 181),
-              (182, 200), (201, 250), (251, 399), (400, 600), (601, None)]
     # url
     url = 'https://www.airbnb.com/api/v2/explore_tabs'
 
@@ -54,9 +45,9 @@ if __name__ == '__main__':
 
     estimated_listings_in_range = None
 
-    for price_min, price_max in ranges:
+    for price in range(10, 406):
         # print price range
-        print(f"price range: {price_min} - {price_max}")
+        print(f"price range: {price}")
         # url query string
         params = {'_format':         'for_explore_search_web',
                   'currency':        'USD',
@@ -65,10 +56,10 @@ if __name__ == '__main__':
                   'query':           'Chicago, IL, United States',
                   'search_type':     'pagination',
                   'selected_tab_id': 'home_tab',
-                  'price_min':       price_min}
+                  'price_min':       price}
         # add price range to params
-        if price_max:
-            params['price_max'] = price_max
+        if price < 404:
+            params['price_max'] = price
 
         # set up the pagination stuff, it works with an offset, so it's page
         # * 18, first page is 0 so offset is 0

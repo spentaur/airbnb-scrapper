@@ -39,3 +39,4 @@ Make sure that the proper date directory is made
     - figure out how to get all listings from big cities where even if price
      is $89 min and max, results are still over 300
 11) add single listing upload to digital ocean
+12) save listing ids in multiple files
