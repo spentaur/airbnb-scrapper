@@ -169,9 +169,9 @@ if __name__ == '__main__':
                 # sleep between requests just to try to mitigate changes of
                 # getting banned, probably too long sleep times but oh well
                 # better safe than sorry
-                sleep_for = uniform(1, 2)
-                print('sleeping for:', sleep_for)
-                sleep(sleep_for)
+                # sleep_for = uniform(1, 2)
+                print('sleeping for:', 3)
+                sleep(3)
 
                 if page == estimated_number_of_pages:
                     total_actual_listings += listings_per_range
