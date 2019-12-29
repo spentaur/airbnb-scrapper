@@ -142,10 +142,6 @@ if __name__ == '__main__':
                 else:
                     has_next_page = False
 
-                assert (len(
-                    listing_ids) == total_actual_listings ==
-                        total_estimated_listings)
-
                 # save all listing id's to csv, this is not the best way do
                 # it because i'm constantly saving the full array but it's
                 # whatever it's only 10k records and one number so oh well
@@ -180,6 +176,9 @@ if __name__ == '__main__':
                 if page == estimated_number_of_pages:
                     assert (listings_per_range == estimated_listings_in_range)
                     total_actual_listings += listings_per_range
+                    assert (len(
+                        listing_ids) == total_actual_listings ==
+                            total_estimated_listings)
                     print("\n")
                     print("actual total for range:", listings_per_range)
                     print("total_actual_listings:", total_actual_listings)
