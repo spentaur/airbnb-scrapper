@@ -79,13 +79,16 @@ if __name__ == '__main__':
         prev_page_ids = set()
         has_next_page = True
 
+        items_offset = 0
+
         # how many listings per range actually gotten
         listings_per_range = 0
 
         while has_next_page:
             # loop through the pages for each given price range
             if page:
-                items_offset = len(prev_page_ids) * page
+                items_offset += len(prev_page_ids)
+                print("offset: ", items_offset)
                 params['items_offset'] = items_offset
 
             # save the listing id's for the current page in order to check
