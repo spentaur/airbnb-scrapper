@@ -25,6 +25,7 @@ if __name__ == '__main__':
                             endpoint_url='https://nyc3.digitaloceanspaces.com',
                             aws_access_key_id=ACCESS_ID,
                             aws_secret_access_key=SECRET_KEY)
+
     # url
     url = 'https://www.airbnb.com/api/v2/explore_tabs'
 
@@ -58,7 +59,7 @@ if __name__ == '__main__':
                   'selected_tab_id': 'home_tab',
                   'price_min':       price}
         # add price range to params
-        if price < 404:
+        if price > 404:
             params['price_max'] = price
 
         # set up the pagination stuff, it works with an offset, so it's page
@@ -70,34 +71,28 @@ if __name__ == '__main__':
         prev_page_ids = set()
         has_next_page = True
 
-        items_offset = 0
-
         # how many listings per range actually gotten
         listings_per_range = 0
-        ids_per_range = set()
 
         while has_next_page:
             # loop through the pages for each given price range
+            if page:
+                items_offset = len(prev_page_ids) * page
+                params['items_offset'] = items_offset
 
             # make the actual request
             r = requests.get(url, params=params)
 
-            # reset attempts
-            attempts = 0
-
             # check the status code
             status = r.status_code
             if status == 200:
+                # save the listing id's for the current page in order to check
+                # with the last page id's
                 page_listing_ids = set()
-                if page:
-                    items_offset += len(prev_page_ids)
-                    params['items_offset'] = items_offset
-
-                # increment page
-                page += 1
-
                 # reset attempts
                 attempts = 0
+                # increment page
+                page += 1
 
                 # get the json results only care about explore tabs i think
                 # which is 1 element array of dictionaries so just get the
@@ -126,7 +121,6 @@ if __name__ == '__main__':
                 # update has next page, this will break the while loop. i'm
                 # pretty sure this is always returned, i should verify that tho
                 has_next_page = results['pagination_metadata']['has_next_page']
-                print('has_next_page')
 
                 # sections is where the "results" are stored
                 sections = results['sections']
@@ -140,8 +134,6 @@ if __name__ == '__main__':
                             # loop through the listing and save the id's
                             page_listing_ids.add(listing['listing']['id'])
                             listing_ids.add(listing['listing']['id'])
-                            listings_per_range += 1
-                            ids_per_range.add(listing['listing']['id'])
 
                 # if the page is the same as the last one then it has no
                 # next page
@@ -149,7 +141,6 @@ if __name__ == '__main__':
                     prev_page_ids = page_listing_ids
                 else:
                     has_next_page = False
-                    print('1')
 
                 # save all listing id's to csv, this is not the best way do
                 # it because i'm constantly saving the full array but it's
@@ -171,10 +162,10 @@ if __name__ == '__main__':
                 if len(page_listing_ids) != 18:
                     has_next_page = False
 
+                listings_per_range += len(page_listing_ids)
+
                 # print out some valuable stuff
-                print("number of ids per range:", len(ids_per_range))
-                print("number of listings per range:", listings_per_range)
-                print("\n")
+                print("number of listings on page:", len(page_listing_ids))
                 # sleep between requests just to try to mitigate changes of
                 # getting banned, probably too long sleep times but oh well
                 # better safe than sorry
@@ -203,7 +194,7 @@ if __name__ == '__main__':
                 if attempts >= max_attempts:
                     break
                 print("status code", status)
-                sleep_for = uniform(3, 9)
+                sleep_for = uniform(1, 5)
                 print('sleeping for:', sleep_for)
                 sleep(sleep_for)
         print("\n")
