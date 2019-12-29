@@ -4,6 +4,7 @@ import os
 import sys
 from time import sleep
 
+import numpy as np
 import requests
 from boto3 import session
 from dotenv import load_dotenv
@@ -159,6 +160,15 @@ def take_break(estimated_number_of_pages, page):
             sleep(1)
 
 
+def split_and_save_ids(listing_ids, directory, number_of_sections=6):
+    splits = np.split(listing_ids, number_of_sections)
+    city_formatted = directory.split("/")[3]
+    for num, ids in enumerate(splits):
+        full_file_path = f"{directory}/{city_formatted}_{num + 1}.csv"
+        save_listing_ids_to_csv(ids, full_file_path)
+        upload_to_digital_ocean(full_file_path)
+
+
 def main():
     city, city_formatted = get_and_format_location()
     directory = get_directory(city_formatted)
@@ -166,7 +176,6 @@ def main():
     check_and_created_directory(directory)
 
     total_estimated_listings = 0
-    total_saved_listings = 0
     total_listing_ids = []
 
     for price_min in range(10, 406):
@@ -192,6 +201,8 @@ def main():
         print("Total Listings Saved:", len(total_listing_ids))
         print("-------------------------------------------")
         print("\n")
+
+    split_and_save_ids(total_listing_ids, directory)
 
 
 if __name__ == '__main__':
