@@ -77,7 +77,6 @@ if __name__ == '__main__':
         # i set the offset to something, because i've noticed that
         # "has_next_page" can't always be trusted
         prev_page_ids = set()
-        range_ids = set()
         has_next_page = True
 
         items_offset = 0
@@ -95,8 +94,6 @@ if __name__ == '__main__':
             # save the listing id's for the current page in order to check
             # with the last page id's
             page_listing_ids = set()
-
-            listings_per_page = 0
 
             # make the actual request
             r = requests.get(url, params=params)
@@ -153,9 +150,6 @@ if __name__ == '__main__':
                             # loop through the listing and save the id's
                             page_listing_ids.add(listing['listing']['id'])
                             listing_ids.add(listing['listing']['id'])
-                            range_ids.add(listing['listing']['id'])
-                            listings_per_range += 1
-                            listings_per_page += 1
 
                 # if the page is the same as the last one then it has no
                 # next page
@@ -181,13 +175,19 @@ if __name__ == '__main__':
 
                 # another insurance that has next page is right, if i get
                 # less than 18 there's no way there's a next page right?
-                if len(page_listing_ids) < 18:
+                if len(page_listing_ids) != 18:
                     has_next_page = False
 
-                print("estimated number of listings by now:",
-                      listings_per_range)
-                print("actual number of listings on page:",
-                      len(range_ids))
+                listings_per_range += len(page_listing_ids)
+
+                # print out some valuable stuff
+                print("number of listings on page:", len(page_listing_ids))
+                # sleep between requests just to try to mitigate changes of
+                # getting banned, probably too long sleep times but oh well
+                # better safe than sorry
+                # sleep_for = uniform(1, 5)
+                # print('sleeping for:', sleep_for)
+                # sleep(sleep_for)
 
                 if page == estimated_number_of_pages:
                     total_actual_listings += listings_per_range
