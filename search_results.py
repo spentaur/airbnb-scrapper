@@ -190,6 +190,8 @@ if __name__ == '__main__':
                     total_actual_listings += listings_per_range
                     print("\n")
                     print("actual total for range:", listings_per_range)
+                    print("total_actual_listings:", total_actual_listings)
+                    print("len listing_ids:", len(listing_ids))
                     if estimated_listings_in_range:
                         print("amount missing:", estimated_listings_in_range -
                               listings_per_range)
