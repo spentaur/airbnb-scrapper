@@ -83,6 +83,7 @@ if __name__ == '__main__':
 
         # how many listings per range actually gotten
         listings_per_range = 0
+        ids_per_range = set()
 
         while has_next_page:
             # loop through the pages for each given price range
@@ -150,6 +151,8 @@ if __name__ == '__main__':
                             # loop through the listing and save the id's
                             page_listing_ids.add(listing['listing']['id'])
                             listing_ids.add(listing['listing']['id'])
+                            listings_per_range += 1
+                            ids_per_range.add(listing['listing']['id'])
 
                 # if the page is the same as the last one then it has no
                 # next page
@@ -178,10 +181,11 @@ if __name__ == '__main__':
                 if len(page_listing_ids) != 18:
                     has_next_page = False
 
-                listings_per_range += len(page_listing_ids)
-
                 # print out some valuable stuff
                 print("number of listings on page:", len(page_listing_ids))
+                print("number of ids per range:", len(ids_per_range))
+                print("number of listings per range:", listings_per_range)
+                print("\n")
                 # sleep between requests just to try to mitigate changes of
                 # getting banned, probably too long sleep times but oh well
                 # better safe than sorry
