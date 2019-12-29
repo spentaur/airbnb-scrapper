@@ -138,6 +138,8 @@ if __name__ == '__main__':
                             page_listing_ids.add(listing['listing']['id'])
                             listing_ids.add(listing['listing']['id'])
                             all_listing_ids.append(listing['listing']['id'])
+                            if listing['listing']['id'] == 35688856:
+                                print('35688856')
                 print(list(duplicates(all_listing_ids)))
 
                 # if the page is the same as the last one then it has no
