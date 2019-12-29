@@ -59,7 +59,7 @@ if __name__ == '__main__':
                   'selected_tab_id': 'home_tab',
                   'price_min':       price}
         # add price range to params
-        if price > 404:
+        if price < 404:
             params['price_max'] = price
 
         # set up the pagination stuff, it works with an offset, so it's page
