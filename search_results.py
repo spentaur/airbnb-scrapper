@@ -203,7 +203,7 @@ if __name__ == '__main__':
                 if attempts >= max_attempts:
                     break
                 print("status code", status)
-                sleep_for = uniform(1, 5)
+                sleep_for = uniform(3, 9)
                 print('sleeping for:', sleep_for)
                 sleep(sleep_for)
         print("\n")
