@@ -78,14 +78,6 @@ if __name__ == '__main__':
 
         while has_next_page:
             # loop through the pages for each given price range
-            if page:
-                items_offset += len(prev_page_ids)
-                print("offset: ", items_offset)
-                params['items_offset'] = items_offset
-
-            # save the listing id's for the current page in order to check
-            # with the last page id's
-            page_listing_ids = set()
 
             # make the actual request
             r = requests.get(url, params=params)
@@ -96,6 +88,12 @@ if __name__ == '__main__':
             # check the status code
             status = r.status_code
             if status == 200:
+                page_listing_ids = set()
+                if page:
+                    items_offset += len(prev_page_ids)
+                    print("offset: ", items_offset)
+                    params['items_offset'] = items_offset
+
                 # increment page
                 page += 1
 
