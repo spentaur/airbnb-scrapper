@@ -3,7 +3,6 @@ import datetime
 import os
 import sys
 from time import sleep
-from time import time
 
 import requests
 from boto3 import session
@@ -78,13 +77,16 @@ def get_page(city_formatted, price_min, price_max, page):
     if price_max:
         params['price_max'] = price_max
 
-    t0 = time()
+    response = None
     try:
         response = requests_retry_session().get(url=url, params=params)
     except Exception as x:
-        return x
+        print('It failed :(', x.__class__.__name__)
 
-    return response
+    if response is not None:
+        return response
+
+    return None
 
 
 def go_through_pages_in_range(city_formatted, price_min, price_max):
@@ -96,24 +98,25 @@ def go_through_pages_in_range(city_formatted, price_min, price_max):
 
     while has_next_page:
         response = get_page(city_formatted, price_min, price_max, page)
-        page += 1
-        results = response.json()['explore_tabs'][0]
-        estimated_listings_in_range = results['home_tab_metadata'][
-            'listings_count']
-        estimated_number_of_pages = min(17, -(
-                estimated_listings_in_range // -18))
-        print(f"{page} / {estimated_number_of_pages}")
-        has_next_page = results['pagination_metadata']['has_next_page']
-        sections = results['sections']
-        page_listing_ids = get_listing_ids_from_sections(sections)
-        if prev_page_ids == page_listing_ids:
-            break
-        prev_page_ids = page_listing_ids
-        listing_ids += list(page_listing_ids)
-        if len(page_listing_ids) != 18:
-            has_next_page = False
+        if response is not None:
+            page += 1
+            results = response.json()['explore_tabs'][0]
+            estimated_listings_in_range = results['home_tab_metadata'][
+                'listings_count']
+            estimated_number_of_pages = min(17, -(
+                    estimated_listings_in_range // -18))
+            print(f"{page} / {estimated_number_of_pages}")
+            has_next_page = results['pagination_metadata']['has_next_page']
+            sections = results['sections']
+            page_listing_ids = get_listing_ids_from_sections(sections)
+            if prev_page_ids == page_listing_ids:
+                break
+            prev_page_ids = page_listing_ids
+            listing_ids += list(page_listing_ids)
+            if len(page_listing_ids) != 18:
+                has_next_page = False
 
-        take_break(estimated_number_of_pages, page)
+            take_break(estimated_number_of_pages, page)
 
     return listing_ids, estimated_listings_in_range
 
