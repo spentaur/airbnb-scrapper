@@ -1,218 +1,197 @@
 import csv
 import datetime
 import os
-from random import uniform
+import sys
 from time import sleep
+from time import time
 
 import requests
 from boto3 import session
 from dotenv import load_dotenv
-from iteration_utilities import duplicates
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
 load_dotenv()
 
-if __name__ == '__main__':
 
+def requests_retry_session(retries=3, backoff_factor=0.3,
+                           status_forcelist=(500, 502, 504), session=None):
+    """https://dev.to/ssbozy/python-requests-with-retries-4p03
+
+    just going to go with this"""
+    session = session or requests.Session()
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    return session
+
+
+def get_and_format_location():
+    city = input("City, State: ")
+    city_formatted = city.lower().replace(',', '').replace(' ', '_')
+    return city, city_formatted
+
+
+def get_directory(city_formatted):
     today = datetime.date.today()
+    return f"../airbnb-data/ids/{city_formatted}/{str(today)}"
 
-    # credentials for digital ocean
+
+def get_full_file_path(directory, city_formatted):
+    return f"{directory}/{city_formatted}.csv"
+
+
+def check_and_created_directory(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+
+def set_up_digital_ocean(ACCESS_ID, SECRET_KEY):
+    url = 'https://nyc3.digitaloceanspaces.com'
+    client = session.Session().client('s3',
+                                      region_name='nyc3',
+                                      endpoint_url=url,
+                                      aws_access_key_id=ACCESS_ID,
+                                      aws_secret_access_key=SECRET_KEY)
+    return client
+
+
+def get_page(city_formatted, price_min, price_max, page):
+    items_offset = 18 * page
+    url = 'https://www.airbnb.com/api/v2/explore_tabs'
+    params = {'_format':         'for_explore_search_web',
+              'currency':        'USD',
+              'items_per_grid':  '18',
+              'key':             'd306zoyjsyarp7ifhu67rjxn52tv0t20',
+              'query':           f'{city_formatted}, United States',
+              'search_type':     'pagination',
+              'selected_tab_id': 'home_tab',
+              'price_min':       price_min,
+              'items_offset':    items_offset}
+    if price_max:
+        params['price_max'] = price_max
+
+    t0 = time()
+    try:
+        response = requests_retry_session().get(url=url, params=params)
+    except Exception as x:
+        return x
+
+    return response
+
+
+def go_through_pages_in_range(city_formatted, price_min, price_max):
+    page = 0
+    prev_page_ids = set()
+    has_next_page = True
+    listing_ids = []
+    estimated_listings_in_range = 0
+
+    while has_next_page:
+        response = get_page(city_formatted, price_min, price_max, page)
+        page += 1
+        results = response.json()['explore_tabs'][0]
+        estimated_listings_in_range = results['home_tab_metadata'][
+            'listings_count']
+        estimated_number_of_pages = min(17, -(
+                estimated_listings_in_range // -18))
+        print(f"{page} / {estimated_number_of_pages}")
+        has_next_page = results['pagination_metadata']['has_next_page']
+        sections = results['sections']
+        page_listing_ids = get_listing_ids_from_sections(sections)
+        if prev_page_ids == page_listing_ids:
+            break
+        prev_page_ids = page_listing_ids
+        listing_ids += list(page_listing_ids)
+        if len(page_listing_ids) != 18:
+            has_next_page = False
+
+        take_break(estimated_number_of_pages, page)
+
+    return listing_ids, estimated_listings_in_range
+
+
+def save_listing_ids_to_csv(listing_ids, full_file_path):
+    with open(full_file_path, 'w', newline='') as f:
+        writer = csv.writer(f, delimiter='\n')
+        writer.writerow(listing_ids)
+
+
+def upload_to_digital_ocean(full_file_path):
     ACCESS_ID = os.getenv("ACCESS_ID")
     SECRET_KEY = os.getenv("SECRET_KEY")
 
-    # setting up for digital ocean upload
-    session = session.Session()
-    client = session.client('s3',
-                            region_name='nyc3',
-                            endpoint_url='https://nyc3.digitaloceanspaces.com',
-                            aws_access_key_id=ACCESS_ID,
-                            aws_secret_access_key=SECRET_KEY)
+    client = set_up_digital_ocean(ACCESS_ID, SECRET_KEY)
+    client.upload_file(full_file_path, 'spentaur', full_file_path[3:])
 
-    # url
-    url = 'https://www.airbnb.com/api/v2/explore_tabs'
 
-    # listing id's that are going to get saved to a csv, maybe not the most
-    # efficient but it's only like 10k records and only just id's so oh well
+def get_listing_ids_from_sections(sections):
     listing_ids = set()
+    for section in sections:
+        if 'listings' in section:
+            # loop through the sections and only get the listing
+            # results, cuz they return like experiences and
+            # stuff too
+            tmp_listings = section['listings']
+            for listing in tmp_listings:
+                listing_ids.add(listing['listing']['id'])
+    return listing_ids
 
-    # total estimated listings
+
+def take_break(estimated_number_of_pages, page):
+    if (estimated_number_of_pages > 1) and (
+            page != estimated_number_of_pages):
+        for remaining in range(20, 0, -1):
+            sys.stdout.write("\r")
+            sys.stdout.write(
+                "{:2d} seconds remaining".format(remaining))
+            sys.stdout.flush()
+            sleep(1)
+
+        sys.stdout.write("\rComplete!            \n")
+
+
+def main():
+    city, city_formatted = get_and_format_location()
+    directory = get_directory(city_formatted)
+    full_file_path = get_full_file_path(directory, city_formatted)
+    check_and_created_directory(directory)
+
     total_estimated_listings = 0
-    # total actual listings
-    total_actual_listings = 0
+    total_saved_listings = 0
+    total_listing_ids = []
 
-    all_listing_ids = []
+    for price_min in range(10, 406):
+        print("Price:", price_min)
+        if price_min < 404:
+            price_max = price_min
+        else:
+            price_max = None
 
-    # max attempts
-    attempts = 0
-    max_attempts = 10
+        listing_ids, estimated_listings_in_range = go_through_pages_in_range(
+            city_formatted, price_min, price_max)
 
-    estimated_number_of_pages = None
+        total_listing_ids += listing_ids
+        total_estimated_listings += estimated_listings_in_range
 
-    estimated_listings_in_range = None
+        save_listing_ids_to_csv(total_listing_ids, full_file_path)
+        upload_to_digital_ocean(full_file_path)
 
-    for price in range(10, 406):
-        # print price range
-        print(f"price range: {price}")
-        # url query string
-        params = {'_format':         'for_explore_search_web',
-                  'currency':        'USD',
-                  'items_per_grid':  '18',
-                  'key':             'd306zoyjsyarp7ifhu67rjxn52tv0t20',
-                  'query':           'Chicago, IL, United States',
-                  'search_type':     'pagination',
-                  'selected_tab_id': 'home_tab',
-                  'price_min':       price}
-        # add price range to params
-        if price < 404:
-            params['price_max'] = price
-
-        # set up the pagination stuff, it works with an offset, so it's page
-        # * 18, first page is 0 so offset is 0
-        page = 0
-        # this is just to make sure that i'm not getting the same results if
-        # i set the offset to something, because i've noticed that
-        # "has_next_page" can't always be trusted
-        prev_page_ids = set()
-        has_next_page = True
-
-        # how many listings per range actually gotten
-        listings_per_range = 0
-
-        while has_next_page:
-            # loop through the pages for each given price range
-            if page:
-                items_offset = 18 * page
-                params['items_offset'] = items_offset
-
-            # make the actual request
-            r = requests.get(url, params=params)
-
-            # check the status code
-            status = r.status_code
-            if status == 200:
-                # save the listing id's for the current page in order to check
-                # with the last page id's
-                page_listing_ids = set()
-                # reset attempts
-                attempts = 0
-                # increment page
-                page += 1
-
-                # get the json results only care about explore tabs i think
-                # which is 1 element array of dictionaries so just get the
-                # first element
-                results = r.json()['explore_tabs'][0]
-
-                # print the theoretical number of listings
-                if page == 1:
-                    estimated_listings_in_range = results['home_tab_metadata'][
-                        'listings_count']
-                    print("estimated number of listings in range:",
-                          estimated_listings_in_range)
-
-                    # add estimated listings in range to estimated total
-                    # listings
-                    total_estimated_listings += estimated_listings_in_range
-
-                    estimated_number_of_pages = -(
-                            estimated_listings_in_range // -18)
-                    print("estimated number of pages:",
-                          estimated_number_of_pages)
-                    print("\n")
-                if estimated_number_of_pages:
-                    print(f"page: {page} / {estimated_number_of_pages}")
-
-                # update has next page, this will break the while loop. i'm
-                # pretty sure this is always returned, i should verify that tho
-                has_next_page = results['pagination_metadata']['has_next_page']
-
-                # sections is where the "results" are stored
-                sections = results['sections']
-                for section in sections:
-                    if 'listings' in section:
-                        # loop through the sections and only get the listing
-                        # results, cuz they return like experiences and
-                        # stuff too
-                        tmp_listings = section['listings']
-                        for listing in tmp_listings:
-                            # loop through the listing and save the id's
-                            page_listing_ids.add(listing['listing']['id'])
-                            listing_ids.add(listing['listing']['id'])
-                            all_listing_ids.append(listing['listing']['id'])
-                            if listing['listing']['id'] == 35688856:
-                                print('35688856')
-                print(list(duplicates(all_listing_ids)))
-
-                # if the page is the same as the last one then it has no
-                # next page
-                if page_listing_ids != prev_page_ids:
-                    prev_page_ids = page_listing_ids
-                else:
-                    has_next_page = False
-
-                # save all listing id's to csv, this is not the best way do
-                # it because i'm constantly saving the full array but it's
-                # whatever it's only 10k records and one number so oh well
-                with open(f'../airbnb-data/ids/chicago/'
-                          f'{str(today)}/chicago_listing_ids.csv',
-                          'w', newline='') as f:
-                    writer = csv.writer(f, delimiter='\n')
-                    writer.writerow(listing_ids)
-
-                client.upload_file(
-                    f'../airbnb-data/ids/chicago/'
-                    f'{str(today)}/chicago_listing_ids.csv',
-                    'spentaur',
-                    f'airbnb/ids/chicago/{str(today)}/chicago_listing_ids.csv')
-
-                # another insurance that has next page is right, if i get
-                # less than 18 there's no way there's a next page right?
-                if len(page_listing_ids) != 18:
-                    has_next_page = False
-
-                listings_per_range += len(page_listing_ids)
-
-                # print out some valuable stuff
-                print("number of listings on page:", len(page_listing_ids))
-                # sleep between requests just to try to mitigate changes of
-                # getting banned, probably too long sleep times but oh well
-                # better safe than sorry
-                # sleep_for = uniform(1, 2)
-                print('sleeping for:', 10)
-                sleep(3)
-
-                if page == estimated_number_of_pages:
-                    assert (listings_per_range == estimated_listings_in_range)
-                    total_actual_listings += listings_per_range
-                    assert (len(
-                        listing_ids) == total_actual_listings ==
-                            total_estimated_listings)
-                    print("\n")
-                    print("actual total for range:", listings_per_range)
-                    print("total_actual_listings:", total_actual_listings)
-                    print("len listing_ids:", len(listing_ids))
-                    if estimated_listings_in_range:
-                        print("amount missing:", estimated_listings_in_range -
-                              listings_per_range)
-                    print("----------------------------------------------")
-            else:
-                # if the status code is not 200, something went wrong and
-                # let's just sleep and the request will be repeated. this
-                # repeats the while loop so nothing get's changed it's just
-                # the same request over again right? should verify that
-
-                # increment attempts
-                attempts += 1
-                if attempts >= max_attempts:
-                    break
-                print("status code", status)
-                sleep_for = uniform(1, 5)
-                print('sleeping for:', sleep_for)
-                sleep(sleep_for)
+        print("Estimated Listings in Price Range:",
+              estimated_listings_in_range)
+        print("Listings Saved in Price Range:", len(listing_ids))
+        print("Total Estimated Listings:", total_estimated_listings)
+        print("Total Listings Saved:", len(total_listing_ids))
+        print("-------------------------------------------")
         print("\n")
 
-        if attempts >= max_attempts:
-            break
 
-    print("total estimated listings:", total_estimated_listings)
-    print("total actual listings:", total_actual_listings)
-    print("len of listing ids", len(listing_ids))
+if __name__ == '__main__':
+    main()

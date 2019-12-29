@@ -15,6 +15,7 @@ pandas = "*"
 jupyter = "*"
 python-dateutil = "*"
 iteration-utilities = "*"
+urllib3 = "*"
 
 [requires]
 python_version = "3.7"
