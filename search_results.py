@@ -158,8 +158,6 @@ def take_break(estimated_number_of_pages, page):
             sys.stdout.flush()
             sleep(1)
 
-        sys.stdout.write("\rComplete!            \n")
-
 
 def main():
     city, city_formatted = get_and_format_location()
