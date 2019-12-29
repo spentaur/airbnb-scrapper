@@ -91,7 +91,6 @@ if __name__ == '__main__':
                 page_listing_ids = set()
                 if page:
                     items_offset += len(prev_page_ids)
-                    print("offset: ", items_offset)
                     params['items_offset'] = items_offset
 
                 # increment page
@@ -127,6 +126,7 @@ if __name__ == '__main__':
                 # update has next page, this will break the while loop. i'm
                 # pretty sure this is always returned, i should verify that tho
                 has_next_page = results['pagination_metadata']['has_next_page']
+                print('has_next_page')
 
                 # sections is where the "results" are stored
                 sections = results['sections']
@@ -149,6 +149,7 @@ if __name__ == '__main__':
                     prev_page_ids = page_listing_ids
                 else:
                     has_next_page = False
+                    print('1')
 
                 # save all listing id's to csv, this is not the best way do
                 # it because i'm constantly saving the full array but it's
@@ -171,7 +172,6 @@ if __name__ == '__main__':
                     has_next_page = False
 
                 # print out some valuable stuff
-                print("number of listings on page:", len(page_listing_ids))
                 print("number of ids per range:", len(ids_per_range))
                 print("number of listings per range:", listings_per_range)
                 print("\n")
