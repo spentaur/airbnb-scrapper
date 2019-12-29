@@ -85,7 +85,7 @@ if __name__ == '__main__':
         while has_next_page:
             # loop through the pages for each given price range
             if page:
-                items_offset = 18 * page
+                items_offset = len(prev_page_ids) * page
                 params['items_offset'] = items_offset
 
             # save the listing id's for the current page in order to check
