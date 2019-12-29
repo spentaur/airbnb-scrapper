@@ -59,7 +59,8 @@ if __name__ == '__main__':
         print(f"price range: {price_min} - {price_max}")
         # url query string
         params = {'_format':         'for_explore_search_web',
-                  'currency':        'USD', 'items_per_grid': '18',
+                  'currency':        'USD',
+                  'items_per_grid':  '18',
                   'key':             'd306zoyjsyarp7ifhu67rjxn52tv0t20',
                   'query':           'Chicago, IL, United States',
                   'search_type':     'pagination',
