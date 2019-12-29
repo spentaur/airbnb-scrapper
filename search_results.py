@@ -170,10 +170,11 @@ if __name__ == '__main__':
                 # getting banned, probably too long sleep times but oh well
                 # better safe than sorry
                 # sleep_for = uniform(1, 2)
-                print('sleeping for:', 3)
+                print('sleeping for:', 10)
                 sleep(3)
 
                 if page == estimated_number_of_pages:
+                    assert (listings_per_range == estimated_listings_in_range)
                     total_actual_listings += listings_per_range
                     print("\n")
                     print("actual total for range:", listings_per_range)
