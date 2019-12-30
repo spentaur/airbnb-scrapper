@@ -3,6 +3,7 @@ import datetime
 import os
 import sys
 from time import sleep
+from time import time
 
 import numpy as np
 import requests
@@ -14,8 +15,9 @@ from urllib3.util import Retry
 load_dotenv()
 
 
-def requests_retry_session(retries=3, backoff_factor=0.3,
-                           status_forcelist=(500, 502, 504), session=None):
+def requests_retry_session(retries=5, backoff_factor=2,
+                           status_forcelist=(500, 502, 504, 429, 403),
+                           session=None):
     """https://dev.to/ssbozy/python-requests-with-retries-4p03
 
     just going to go with this"""
@@ -24,6 +26,7 @@ def requests_retry_session(retries=3, backoff_factor=0.3,
         total=retries,
         read=retries,
         connect=retries,
+        status=retries,
         backoff_factor=backoff_factor,
         status_forcelist=status_forcelist,
     )
@@ -77,17 +80,18 @@ def get_page(city_formatted, price_min, price_max, page):
               'items_offset':    items_offset}
     if price_max:
         params['price_max'] = price_max
-
-    response = None
+    t0 = time()
     try:
         response = requests_retry_session().get(url=url, params=params)
     except Exception as x:
-        print('It failed :(', x.__class__.__name__)
-
-    if response is not None:
+        print('It failed :(')
+        print(x)
+    else:
+        print('It eventually worked', response.status_code)
         return response
-
-    return None
+    finally:
+        t1 = time()
+        print('Took', t1 - t0, 'seconds')
 
 
 def go_through_pages_in_range(city_formatted, price_min, price_max):
@@ -99,6 +103,7 @@ def go_through_pages_in_range(city_formatted, price_min, price_max):
 
     while has_next_page:
         response = get_page(city_formatted, price_min, price_max, page)
+        print(type(response))
         if response is not None:
             page += 1
             results = response.json()['explore_tabs'][0]
@@ -158,10 +163,11 @@ def take_break(estimated_number_of_pages, page):
                 "{:2d} seconds remaining".format(remaining))
             sys.stdout.flush()
             sleep(1)
+        sys.stdout.write("\rComplete!            \n")
 
 
 def split_and_save_ids(listing_ids, directory, number_of_sections=6):
-    splits = np.split(listing_ids, number_of_sections)
+    splits = np.array_split(np.array(listing_ids), number_of_sections)
     city_formatted = directory.split("/")[3]
     for num, ids in enumerate(splits):
         full_file_path = f"{directory}/{city_formatted}_{num + 1}.csv"
