@@ -15,7 +15,7 @@ from urllib3.util import Retry
 load_dotenv()
 
 
-def requests_retry_session(retries=5, backoff_factor=2,
+def requests_retry_session(retries=10, backoff_factor=3,
                            status_forcelist=(500, 502, 504, 429, 403),
                            session=None):
     """https://dev.to/ssbozy/python-requests-with-retries-4p03
@@ -109,20 +109,23 @@ def go_through_pages_in_range(city_formatted, price_min, price_max):
             results = response.json()['explore_tabs'][0]
             estimated_listings_in_range = results['home_tab_metadata'][
                 'listings_count']
-            estimated_number_of_pages = min(17, -(
-                    estimated_listings_in_range // -18))
-            print(f"{page} / {estimated_number_of_pages}")
-            has_next_page = results['pagination_metadata']['has_next_page']
-            sections = results['sections']
-            page_listing_ids = get_listing_ids_from_sections(sections)
-            if prev_page_ids == page_listing_ids:
-                break
-            prev_page_ids = page_listing_ids
-            listing_ids += list(page_listing_ids)
-            if len(page_listing_ids) != 18:
-                has_next_page = False
+            if estimated_listings_in_range < 300:
+                estimated_number_of_pages = min(17, -(
+                        estimated_listings_in_range // -18))
+                print(f"{page} / {estimated_number_of_pages}")
+                has_next_page = results['pagination_metadata']['has_next_page']
+                sections = results['sections']
+                page_listing_ids = get_listing_ids_from_sections(sections)
+                if prev_page_ids == page_listing_ids:
+                    break
+                prev_page_ids = page_listing_ids
+                listing_ids += list(page_listing_ids)
+                if len(page_listing_ids) != 18:
+                    has_next_page = False
 
-            take_break(estimated_number_of_pages, page)
+                take_break(estimated_number_of_pages, page)
+            else:
+                has_next_page = False
 
     return listing_ids, estimated_listings_in_range
 
@@ -177,16 +180,18 @@ def split_and_save_ids(listing_ids, directory, number_of_sections=6):
 
 def main():
     city, city_formatted = get_and_format_location()
+    max_price = input("Highest Price: ")
     directory = get_directory(city_formatted)
     full_file_path = get_full_file_path(directory, city_formatted)
     check_and_created_directory(directory)
 
     total_estimated_listings = 0
     total_listing_ids = []
+    over_300 = []
 
-    for price_min in range(10, 406):
+    for price_min in range(10, int(max_price) + 1):
         print("Price:", price_min)
-        if price_min < 404:
+        if price_min < int(max_price) - 1:
             price_max = price_min
         else:
             price_max = None
@@ -194,21 +199,36 @@ def main():
         listing_ids, estimated_listings_in_range = go_through_pages_in_range(
             city_formatted, price_min, price_max)
 
-        total_listing_ids += listing_ids
-        total_estimated_listings += estimated_listings_in_range
+        if estimated_listings_in_range >= 300:
+            over_300.append((price_min, price_max))
+            print("There are over 300 estimated listings in this range, "
+                  "so none of them have been saved as you'll need to find "
+                  "another way to ensure you get all of them. (use map, "
+                  "change types, etc.")
+        else:
+            total_listing_ids += listing_ids
+            total_estimated_listings += estimated_listings_in_range
 
-        save_listing_ids_to_csv(total_listing_ids, full_file_path)
-        upload_to_digital_ocean(full_file_path)
+            save_listing_ids_to_csv(total_listing_ids, full_file_path)
+            upload_to_digital_ocean(full_file_path)
 
-        print("Estimated Listings in Price Range:",
-              estimated_listings_in_range)
-        print("Listings Saved in Price Range:", len(listing_ids))
-        print("Total Estimated Listings:", total_estimated_listings)
-        print("Total Listings Saved:", len(total_listing_ids))
+            print("Estimated Listings in Price Range:",
+                  estimated_listings_in_range)
+            print("Listings Saved in Price Range:", len(listing_ids))
+            print("Total Estimated Listings:", total_estimated_listings)
+            print("Total Listings Saved:", len(total_listing_ids))
+
         print("-------------------------------------------")
         print("\n")
 
     split_and_save_ids(total_listing_ids, directory)
+
+    if not over_300:
+        print("Listings in these price ranges had more than 300 estimated "
+              "results meaning you will need to find another way to make "
+              "sure you get all of them. None of these listings were saved "
+              "in order to ensure you don't get them twice.")
+        print(over_300)
 
 
 if __name__ == '__main__':
