@@ -34,7 +34,8 @@ def requests_retry_session(retries=10, backoff_factor=3,
 def get_and_format_location():
     city = input("City, State: ")
     city_formatted = city.lower().replace(',', '').replace(' ', '_')
-    return city, city_formatted
+    query = input("Query: ")
+    return city, city_formatted, query
 
 
 def get_directory(city_formatted, ids_or_listings, date):

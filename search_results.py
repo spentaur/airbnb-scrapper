@@ -14,7 +14,7 @@ from helpers import get_and_format_location, \
 load_dotenv()
 
 
-def go_through_pages_in_range(city_formatted, price_min, price_max):
+def go_through_pages_in_range(query, price_min, price_max):
     page = 0
     prev_page_ids = set()
     has_next_page = True
@@ -25,7 +25,7 @@ def go_through_pages_in_range(city_formatted, price_min, price_max):
               'currency':        'USD',
               'items_per_grid':  '18',
               'key':             os.getenv("AIRBNB_KEY"),
-              'query':           f'{city_formatted}, United States',
+              'query':           f'{query}, United States',
               'search_type':     'pagination',
               'selected_tab_id': 'home_tab',
               'price_min':       price_min}
@@ -104,7 +104,7 @@ def split_and_save_ids(listing_ids, directory, number_of_sections=6):
 
 def main():
     today = datetime.date.today()
-    city, city_formatted = get_and_format_location()
+    city, city_formatted, query = get_and_format_location()
     max_price = input("Highest Price: ")
     directory = get_directory(city_formatted, "ids", str(today))
     full_file_path = get_full_file_path(directory)
@@ -122,7 +122,7 @@ def main():
             price_max = None
 
         listing_ids, estimated_listings_in_range = go_through_pages_in_range(
-            city_formatted, price_min, price_max)
+            query, price_min, price_max)
 
         if estimated_listings_in_range >= 300:
             over_300.append((price_min, price_max))

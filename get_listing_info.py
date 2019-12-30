@@ -41,6 +41,7 @@ def get_listing_info(listing_id):
         calendar_last_updated_at = results['calendar_last_updated_at']
         min_nights = results['min_nights']
         has_we_work_location = results['has_we_work_location']
+        location_title = results['location_title']
         is_business_travel_ready = results['is_business_travel_ready']
         localized_check_in_time_window = results[
             'localized_check_in_time_window']
@@ -94,44 +95,45 @@ def get_listing_info(listing_id):
                                                       'appreciation_tags'],
                                                   appreciation_tags_keys)
 
-        listing = {'additional_house_rules':      additional_house_rules,
-                   'bathroom_label':              bathroom_label,
-                   'bed_label':                   bed_label,
-                   'bedroom_label':               bedroom_label,
-                   'guest_label':                 guest_label,
-                   'id':                          results['id'],
-                   'name':                        name,
-                   'person_capacity':             person_capacity,
-                   'photo_count':                 photo_count,
-                   'host_name':                   host_name,
-                   'languages':                   languages,
-                   'room_and_property_type':      room_and_property_type,
-                   'room_type_category':          room_type_category,
-                   'tier_id':                     tier_id,
+        listing = {'additional_house_rules': additional_house_rules,
+                   'bathroom_label':         bathroom_label,
+                   'bed_label':              bed_label,
+                   'bedroom_label':          bedroom_label,
+                   'guest_label':            guest_label,
+                   'id':                     results['id'],
+                   'name':                   name,
+                   'person_capacity':        person_capacity,
+                   'photo_count':            photo_count,
+                   'host_name':              host_name,
+                   'languages':              languages,
+                   'room_and_property_type': room_and_property_type,
+                   'room_type_category':     room_type_category,
+                   'tier_id':                tier_id,
                    'calendar_last_updated_at':
-                                                  calendar_last_updated_at,
-                   'min_nights':                  min_nights,
-                   'has_we_work_location':        has_we_work_location,
+                                             calendar_last_updated_at,
+                   'min_nights':             min_nights,
+                   'has_we_work_location':   has_we_work_location,
+                   'location_title':         location_title,
                    'is_business_travel_ready':
-                                                  is_business_travel_ready,
+                                             is_business_travel_ready,
                    'localized_check_in_time_window':
-                                                  localized_check_in_time_window,
+                                             localized_check_in_time_window,
                    'localized_check_out_time':
-                                                  localized_check_out_time,
-                   'lat':                         lat,
-                   'lng':                         lng,
-                   'neighborhood_id':             neighborhood_id,
-                   'license':                     license_number,
-                   'requires_license':            requires_license,
+                                             localized_check_out_time,
+                   'lat':                    lat,
+                   'lng':                    lng,
+                   'neighborhood_id':        neighborhood_id,
+                   'license':                license_number,
+                   'requires_license':       requires_license,
                    'support_cleaner_living_wage':
-                                                  support_cleaner_living_wage,
+                                             support_cleaner_living_wage,
                    'host_other_property_review_count':
-                                                  host_other_property_review_count,
-                   'listing_review_count':        listing_review_count,
-                   'listing_review_score':        listing_review_score,
-                   'visible_review_count':        visible_review_count,
-                   'host_interaction':            host_interaction,
-                   'host_quote':                  host_quote,
+                                             host_other_property_review_count,
+                   'listing_review_count':   listing_review_count,
+                   'listing_review_score':   listing_review_score,
+                   'visible_review_count':   visible_review_count,
+                   'host_interaction':       host_interaction,
+                   'host_quote':             host_quote,
                    'is_select_market':            is_select_market,
                    'nearby_airport_distance_descriptions':
                                                   nearby_airport_distance_descriptions,
