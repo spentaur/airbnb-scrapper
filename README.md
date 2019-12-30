@@ -43,7 +43,6 @@ If you just need to get the query, for instance you are searching for
  another city, just ignore the key part, you don't need to get it every time. 
  You can save it somewhere and just reference it later.
 
-----
 
 ## Set up server
 1) Create and ssh into droplet.
@@ -69,7 +68,6 @@ mkdir ../airbnb-data/listings/CITY/$(date +%Y-%m-%d)
 mkdir ../airbnb-data/ids/CITY/$(date +%Y-%m-%d)'
 ```
 
-----
 
 #### Get all listing ids for city
 
@@ -77,7 +75,6 @@ mkdir ../airbnb-data/ids/CITY/$(date +%Y-%m-%d)'
 2) Enter City (Example: Champaign, Il)
 3) Enter Query (Example: Champaign, Il, United States)
 
-----
 
 #### Get all listings info
 
@@ -85,7 +82,7 @@ mkdir ../airbnb-data/ids/CITY/$(date +%Y-%m-%d)'
 2) Enter City (Example: Champaign, Il)
 3) Enter which subset of listing id's you'd like to get information on.
 
-----
+
 #### TODO
 1) ~~search_results should be generalized~~
 2) better documentation
