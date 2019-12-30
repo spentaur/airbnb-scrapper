@@ -1,9 +1,13 @@
 import datetime
+import os
 
 import pandas as pd
 from dateutil.parser import parse
+from dotenv import load_dotenv
 
 from helpers import get_page
+
+load_dotenv()
 
 
 def get_listing_info(listing_id):
@@ -11,7 +15,7 @@ def get_listing_info(listing_id):
         listing_id)
 
     params = {'_format': 'for_rooms_show',
-              'key':     'd306zoyjsyarp7ifhu67rjxn52tv0t20'}
+              'key':     os.getenv("AIRBNB_KEY")}
 
     response = get_page(url, params)
 
@@ -224,7 +228,7 @@ def get_booking_info(listing_id, min_nights, max_guests):
     url = 'https://www.airbnb.com/api/v2/pdp_listing_booking_details'
     while number_of_adults <= max_guests:
         params = {'_format':            'for_web_with_date',
-                  'key':                'd306zoyjsyarp7ifhu67rjxn52tv0t20',
+                  'key':                os.getenv("AIRBNB_KEY"),
                   'listing_id':         listing_id,
                   'check_in':           check_in,
                   'check_out':          check_out,
@@ -295,8 +299,7 @@ def get_booking_info(listing_id, min_nights, max_guests):
 
 def get_reviews_info(listing_id, number_of_reviews):
     url = 'https://www.airbnb.com/api/v2/homes_pdp_reviews'
-    # TODO add key to a variable
-    params = {'key':        'd306zoyjsyarp7ifhu67rjxn52tv0t20',
+    params = {'key':        os.getenv("AIRBNB_KEY"),
               'listing_id': listing_id,
               'limit':      number_of_reviews + 2}
 

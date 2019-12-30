@@ -41,8 +41,8 @@ def get_directory(city_formatted, ids_or_listings, date):
     return f"../airbnb-data/{ids_or_listings}/{city_formatted}/{date}"
 
 
-def get_full_file_path(directory, city_formatted, number=None):
-    # TODO i dont need city again, just get from dir?
+def get_full_file_path(directory, number=None):
+    city_formatted = directory.split("/")[-2]
     return f"{directory}/{city_formatted}{f'_{number}' if number else ''}.csv"
 
 

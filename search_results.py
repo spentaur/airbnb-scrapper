@@ -1,13 +1,17 @@
 import csv
 import datetime
+import os
 import sys
 from time import sleep
 
 import numpy as np
+from dotenv import load_dotenv
 
 from helpers import get_and_format_location, \
     get_directory, get_full_file_path, check_and_created_directory, \
     get_page, upload_to_digital_ocean
+
+load_dotenv()
 
 
 def go_through_pages_in_range(city_formatted, price_min, price_max):
@@ -20,7 +24,7 @@ def go_through_pages_in_range(city_formatted, price_min, price_max):
     params = {'_format':         'for_explore_search_web',
               'currency':        'USD',
               'items_per_grid':  '18',
-              'key':             'd306zoyjsyarp7ifhu67rjxn52tv0t20',
+              'key':             os.getenv("AIRBNB_KEY"),
               'query':           f'{city_formatted}, United States',
               'search_type':     'pagination',
               'selected_tab_id': 'home_tab',
@@ -103,7 +107,7 @@ def main():
     city, city_formatted = get_and_format_location()
     max_price = input("Highest Price: ")
     directory = get_directory(city_formatted, "ids", str(today))
-    full_file_path = get_full_file_path(directory, city_formatted)
+    full_file_path = get_full_file_path(directory)
     check_and_created_directory(directory)
 
     total_estimated_listings = 0
