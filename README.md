@@ -1,5 +1,29 @@
 # This is a program set up to run on Digital Ocean and scrape the airbnb api and save listing information to a csv.
 ----
+
+## Getting AirBnB key and query
+
+1) Open inspector panel and go to network tab.
+2) Go to https://airbnb.com.
+3) Pick a city. You don't need to worry about check-in, checkout, or number
+ or guests for this purpose.
+4) In the `Filter URLs` search box, type 'explore_tabs'
+    - There might be multiple, and not all of them have the query param so
+     you might have to check more than one. You can start with the largest
+      one, that's most likely it. 
+5) In the bottom section, select the Params tab.
+6) In the  `Filter Request Parameters` box type 'key'. This is the `Airbnb
+ Key` requested during set up
+7) Next type 'query'. This will be the 'query' field requested during
+  `search_results.py`. It should look similar to the city you are searching
+   for (Example: Champaign, IL, United States)
+
+If you just need to get the query, for instance you are searching for
+ another city, just ignore the key part, you don't need to get it every time. 
+ You can save it somewhere and just reference it later.
+
+----
+
 ## Set up server
 1) Create and ssh into droplet.
 2) `git clone https://github.com/spentaur/airbnb-scrapper.git`
@@ -61,3 +85,4 @@ mkdir ../airbnb-data/ids/CITY/$(date +%Y-%m-%d)'
     - search, listings
     - if a price range fails or a has over 300 or if a page in a range fails
     - if listing is 403 or couldn't get all the info 
+15) setup without digital ocean
