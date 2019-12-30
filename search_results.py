@@ -1,97 +1,13 @@
 import csv
 import datetime
-import os
 import sys
 from time import sleep
-from time import time
 
 import numpy as np
-import requests
-from boto3 import session
-from dotenv import load_dotenv
-from requests.adapters import HTTPAdapter
-from urllib3.util import Retry
 
-load_dotenv()
-
-
-def requests_retry_session(retries=10, backoff_factor=3,
-                           status_forcelist=(500, 502, 504, 429, 403),
-                           session=None):
-    """https://dev.to/ssbozy/python-requests-with-retries-4p03
-
-    just going to go with this"""
-    session = session or requests.Session()
-    retry = Retry(
-        total=retries,
-        read=retries,
-        connect=retries,
-        status=retries,
-        backoff_factor=backoff_factor,
-        status_forcelist=status_forcelist,
-    )
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
-    return session
-
-
-def get_and_format_location():
-    city = input("City, State: ")
-    city_formatted = city.lower().replace(',', '').replace(' ', '_')
-    return city, city_formatted
-
-
-def get_directory(city_formatted):
-    today = datetime.date.today()
-    return f"../airbnb-data/ids/{city_formatted}/{str(today)}"
-
-
-def get_full_file_path(directory, city_formatted):
-    return f"{directory}/{city_formatted}.csv"
-
-
-def check_and_created_directory(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-
-def set_up_digital_ocean(ACCESS_ID, SECRET_KEY):
-    url = 'https://nyc3.digitaloceanspaces.com'
-    client = session.Session().client('s3',
-                                      region_name='nyc3',
-                                      endpoint_url=url,
-                                      aws_access_key_id=ACCESS_ID,
-                                      aws_secret_access_key=SECRET_KEY)
-    return client
-
-
-def get_page(city_formatted, price_min, price_max, page):
-    items_offset = 18 * page
-    url = 'https://www.airbnb.com/api/v2/explore_tabs'
-    params = {'_format':         'for_explore_search_web',
-              'currency':        'USD',
-              'items_per_grid':  '18',
-              'key':             'd306zoyjsyarp7ifhu67rjxn52tv0t20',
-              'query':           f'{city_formatted}, United States',
-              'search_type':     'pagination',
-              'selected_tab_id': 'home_tab',
-              'price_min':       price_min,
-              'items_offset':    items_offset}
-    if price_max:
-        params['price_max'] = price_max
-    t0 = time()
-    try:
-        response = requests_retry_session().get(url=url, params=params)
-    except Exception as x:
-        print('It failed :(')
-        print(x)
-    else:
-        print('It eventually worked', response.status_code)
-        return response
-    finally:
-        t1 = time()
-        print('Took', t1 - t0, 'seconds')
+from helpers import get_and_format_location, \
+    get_directory, get_full_file_path, check_and_created_directory, \
+    get_page, upload_to_digital_ocean
 
 
 def go_through_pages_in_range(city_formatted, price_min, price_max):
@@ -100,9 +16,21 @@ def go_through_pages_in_range(city_formatted, price_min, price_max):
     has_next_page = True
     listing_ids = []
     estimated_listings_in_range = 0
+    url = 'https://www.airbnb.com/api/v2/explore_tabs'
+    params = {'_format':         'for_explore_search_web',
+              'currency':        'USD',
+              'items_per_grid':  '18',
+              'key':             'd306zoyjsyarp7ifhu67rjxn52tv0t20',
+              'query':           f'{city_formatted}, United States',
+              'search_type':     'pagination',
+              'selected_tab_id': 'home_tab',
+              'price_min':       price_min}
+    if price_max:
+        params['price_max'] = price_max
 
     while has_next_page:
-        response = get_page(city_formatted, price_min, price_max, page)
+        params['items_offset'] = 18 * page
+        response = get_page(url, params)
         print(type(response))
         if response is not None:
             page += 1
@@ -112,7 +40,7 @@ def go_through_pages_in_range(city_formatted, price_min, price_max):
             if estimated_listings_in_range < 300:
                 estimated_number_of_pages = min(17, -(
                         estimated_listings_in_range // -18))
-                print(f"{page} / {estimated_number_of_pages}")
+                print(f"Page: {page} / {max(estimated_number_of_pages, 1)}")
                 has_next_page = results['pagination_metadata']['has_next_page']
                 sections = results['sections']
                 page_listing_ids = get_listing_ids_from_sections(sections)
@@ -134,14 +62,6 @@ def save_listing_ids_to_csv(listing_ids, full_file_path):
     with open(full_file_path, 'w', newline='') as f:
         writer = csv.writer(f, delimiter='\n')
         writer.writerow(listing_ids)
-
-
-def upload_to_digital_ocean(full_file_path):
-    ACCESS_ID = os.getenv("ACCESS_ID")
-    SECRET_KEY = os.getenv("SECRET_KEY")
-
-    client = set_up_digital_ocean(ACCESS_ID, SECRET_KEY)
-    client.upload_file(full_file_path, 'spentaur', full_file_path[3:])
 
 
 def get_listing_ids_from_sections(sections):
@@ -179,9 +99,10 @@ def split_and_save_ids(listing_ids, directory, number_of_sections=6):
 
 
 def main():
+    today = datetime.date.today()
     city, city_formatted = get_and_format_location()
     max_price = input("Highest Price: ")
-    directory = get_directory(city_formatted)
+    directory = get_directory(city_formatted, "ids", str(today))
     full_file_path = get_full_file_path(directory, city_formatted)
     check_and_created_directory(directory)
 

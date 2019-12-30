@@ -1,27 +1,25 @@
 import datetime
-from random import uniform
-from time import sleep
 
 import pandas as pd
-import requests
 from dateutil.parser import parse
 
+from helpers import get_page
 
-def get_listing_info(listing_id, attempts=0):
+
+def get_listing_info(listing_id):
     url = 'https://www.airbnb.com/api/v2/pdp_listing_details/' + str(
         listing_id)
 
     params = {'_format': 'for_rooms_show',
               'key':     'd306zoyjsyarp7ifhu67rjxn52tv0t20'}
 
-    max_attempts = 10
+    response = get_page(url, params)
 
-    r = requests.get(url, params)
-
+    # TODO retries should handle 403 too? put in try catch?
     # check the status code
-    status = r.status_code
+    status = response.status_code
     if status == 200:
-        results = r.json()['pdp_listing_detail']
+        results = response.json()['pdp_listing_detail']
 
         additional_house_rules = results['additional_house_rules']
         bathroom_label = results['bathroom_label']
@@ -190,13 +188,6 @@ def get_listing_info(listing_id, attempts=0):
 
         return listing
     else:
-        # if the status code is not 200, something went wrong and
-        # let's just sleep and the request will be repeated. this
-        # repeats the while loop so nothing get's changed it's just
-        # the same request over again right? should verify that
-
-        # increment attempts
-
         return None
 
 
@@ -240,12 +231,12 @@ def get_booking_info(listing_id, min_nights, max_guests):
                   'number_of_children': 0,
                   'number_of_infants':  0,
                   'number_of_adults':   number_of_adults}
-        r = requests.get(url, params)
+
+        response = get_page(url, params)
         # check the status code
-        status = r.status_code
+        status = response.status_code
         if status == 200:
-            attempts = 0
-            results = r.json()['pdp_listing_booking_details'][0]
+            results = response.json()['pdp_listing_booking_details'][0]
 
             if counter == 0:
                 for price_item in results['price']['price_items']:
@@ -283,24 +274,16 @@ def get_booking_info(listing_id, min_nights, max_guests):
             counter += 1
             number_of_adults += 1
 
-            # sleep_for = uniform(4, 20)
-            # sleep(sleep_for)
         else:
             # if the status code is not 200, something went wrong and
             # let's just sleep and the request will be repeated. this
             # repeats the while loop so nothing get's changed it's just
             # the same request over again right? should verify that
 
-            # increment attempts
-            attempts += 1
-            if attempts > max_attempts:
-                broken = True
-                break
             print("booking info")
             print("status code", status)
-            sleep_for = uniform(1, 10)
-            print('sleeping for:', sleep_for)
-            sleep(sleep_for)
+            broken = True
+            break
 
     if not broken:
         data = [cleaning_fee, cancelation_policies,
@@ -308,8 +291,6 @@ def get_booking_info(listing_id, min_nights, max_guests):
                 extra_guest_fee_at, check_in, check_out]
 
         return data
-    else:
-        return 420
 
 
 def get_reviews_info(listing_id, number_of_reviews):
@@ -319,52 +300,39 @@ def get_reviews_info(listing_id, number_of_reviews):
               'listing_id': listing_id,
               'limit':      number_of_reviews + 2}
 
-    max_attempts = 10
-    attempts = 0
+    response = get_page(url, params)
+    status = response.status_code
+    if status == 200:
+        reviews = response.json()['reviews']
 
-    while attempts < max_attempts:
-        r = requests.get(url=url, params=params)
-        if r.status_code == 200:
-            reviews = r.json()['reviews']
+        if len(reviews) != number_of_reviews:
+            print("Len Reviews Not Equal to Number of Reviews")
 
-            assert (len(reviews) == number_of_reviews)
-
-            oldest = None
-            newest = None
-            for review in reviews:
-                created_at = parse(review['created_at'])
-                if oldest:
-                    oldest = min(created_at, oldest)
-                else:
-                    oldest = created_at
-                if newest:
-                    newest = max(created_at, newest)
-                else:
-                    newest = created_at
-
-            # TODO i dont think i need this since i'm returning?
-            attempts = max_attempts
-            return newest, oldest
-        else:
-            attempts += 1
-            print("comments")
-            print("status code", r.status_code)
-            sleep_for = uniform(1, 10)
-            print('sleeping for:', sleep_for)
-            sleep(sleep_for)
-
-    return 420
+        oldest = None
+        newest = None
+        for review in reviews:
+            created_at = parse(review['created_at'])
+            if oldest:
+                oldest = min(created_at, oldest)
+            else:
+                oldest = created_at
+            if newest:
+                newest = max(created_at, newest)
+            else:
+                newest = created_at
+        return newest, oldest
+    else:
+        print("comments")
+        print("status code", status)
 
 
 def get_all_listing_info(listing_id):
     listing = get_listing_info(listing_id)
-    # TODO i think it actually reurns none so i need to redo retries,
-    #  just fail if anything else but 200
     if listing is not None:
         booking_info = get_booking_info(listing_id, listing['min_nights'],
                                         listing['person_capacity'])
 
-        if booking_info != 420:
+        if booking_info is not None:
             listing['cleaning_fee'] = booking_info[0]
             listing['cancelation_policies'] = booking_info[1]
             listing['non_refundable_discount_rate'] = booking_info[2]
@@ -377,7 +345,7 @@ def get_all_listing_info(listing_id):
 
             comment_count = listing['visible_review_count']
             comment_info = get_reviews_info(listing_id, comment_count)
-            if comment_info != 420:
+            if comment_info is not None:
                 newest_comment, oldest_comment = comment_info
                 listing['newest_reviews_date'] = newest_comment
                 listing['oldest_reviews_date'] = oldest_comment

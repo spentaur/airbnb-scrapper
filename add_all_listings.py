@@ -1,47 +1,35 @@
 import datetime
-import os
 from os import path
 from random import shuffle
 from time import time
 
 import pandas as pd
-from boto3 import session
-from dotenv import load_dotenv
 
 from get_listing_info import get_all_listing_info
+from helpers import get_and_format_location, get_full_file_path, \
+    get_directory, upload_to_digital_ocean
 
-load_dotenv()
 
-# TODO get calendar info as well
-# TODO add checkin and checkout dates to df?
-
-if __name__ == '__main__':
-    # credentials for digital ocean
-    ACCESS_ID = os.getenv("ACCESS_ID")
-    SECRET_KEY = os.getenv("SECRET_KEY")
+def main():
     today = datetime.date.today()
+    city, city_formatted = get_and_format_location()
+
+    # TODO newest
     id_date = input("Date Id's Collected: ")
-    # setting up for digital ocean upload
-    session = session.Session()
-    client = session.client('s3',
-                            region_name='nyc3',
-                            endpoint_url='https://nyc3.digitaloceanspaces.com',
-                            aws_access_key_id=ACCESS_ID,
-                            aws_secret_access_key=SECRET_KEY)
-
+    # TODO all
     ids_id = input("Which set of ids to get: ")
-    ids = set(
-        pd.read_csv(f'../airbnb-data/ids/chicago/'
-                    f'{id_date}/chicago_listing_ids'
-                    f'_{ids_id}.csv')[
-            'ids'].tolist())
 
-    if path.exists(
-            f"../airbnb-data/listings/chicago/{str(today)}/chicago_listings"
-            f"_{ids_id}.csv"):
-        listings = pd.read_csv(
-            f"../airbnb-data/listings/chicago/{str(today)}/chicago_listings"
-            f"_{ids_id}.csv")
+    ids_directory = get_directory(city_formatted, 'ids', id_date)
+    ids_full_path = get_full_file_path(ids_directory, city_formatted, ids_id)
+
+    listings_directory = get_directory(city_formatted, 'listings', str(today))
+    listings_full_path = get_full_file_path(listings_directory,
+                                            city_formatted, ids_id)
+
+    ids = set(pd.read_csv(ids_full_path)['ids'].tolist())
+
+    if path.exists(listings_full_path):
+        listings = pd.read_csv(listings_full_path)
         listing_ids = set(listings['id'].tolist())
     else:
         listings = pd.DataFrame()
@@ -57,18 +45,13 @@ if __name__ == '__main__':
         listing = get_all_listing_info(listing_id)
         if listing is not None:
             listings = pd.concat([listings, listing])
-            listings.to_csv(
-                f"../airbnb-data/listings/chicago/"
-                f"{str(today)}/chicago_listings"
-                f"_{ids_id}.csv",
-                index=False)
-            print(f"this listing took: {time() - start} seconds")
+            listings.to_csv(listings_full_path, index=False)
+            print("-------------------------------------------")
             print("\n")
 
-            client.upload_file(
-                f"../airbnb-data/listings/chicago/"
-                f"{str(today)}/chicago_listings"
-                f"_{ids_id}.csv",
-                'spentaur',
-                f'airbnb/listings/chicago/{str(today)}/chicago_listings_'
-                f'{ids_id}.csv')
+            upload_to_digital_ocean(listings_full_path)
+
+
+# TODO get calendar info as well
+if __name__ == '__main__':
+    main()
