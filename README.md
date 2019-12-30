@@ -1,4 +1,4 @@
-# This is a program set up to run on Digital Ocean and scrape the airbnb api and save listing information to a csv.
+# This is a program set up to run on Digital Ocean and scrape the AirBnb API and save listing information to a csv.
 
 **_Be warned: This Will Take a Long Time To Run!_**  
 Because of airbnb rate limiting, you have to take a decent break when you
@@ -105,3 +105,6 @@ mkdir ../airbnb-data/ids/CITY/$(date +%Y-%m-%d)'
     - if a price range fails or a has over 300 or if a page in a range fails
     - if listing is 403 or couldn't get all the info 
 15) setup without digital ocean
+16) chunk search_results
+    - it'd be nice if you could start at price, so that way you don't have
+     to run all at once

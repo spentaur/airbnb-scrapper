@@ -33,6 +33,7 @@ def go_through_pages_in_range(query, price_min, price_max):
         params['price_max'] = price_max
 
     while has_next_page:
+        # TODO this will go on forever
         params['items_offset'] = 18 * page
         response = get_page(url, params)
         print(type(response))
