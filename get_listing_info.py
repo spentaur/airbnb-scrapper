@@ -18,8 +18,9 @@ def get_listing_info(listing_id):
               'key':     os.getenv("AIRBNB_KEY")}
 
     response = get_page(url, params)
+    if response is None:
+        return None
 
-    # TODO retries should handle 403 too? put in try catch?
     # check the status code
     status = response.status_code
     if status == 200:
@@ -95,45 +96,45 @@ def get_listing_info(listing_id):
                                                       'appreciation_tags'],
                                                   appreciation_tags_keys)
 
-        listing = {'additional_house_rules': additional_house_rules,
-                   'bathroom_label':         bathroom_label,
-                   'bed_label':              bed_label,
-                   'bedroom_label':          bedroom_label,
-                   'guest_label':            guest_label,
-                   'id':                     results['id'],
-                   'name':                   name,
-                   'person_capacity':        person_capacity,
-                   'photo_count':            photo_count,
-                   'host_name':              host_name,
-                   'languages':              languages,
-                   'room_and_property_type': room_and_property_type,
-                   'room_type_category':     room_type_category,
-                   'tier_id':                tier_id,
+        listing = {'additional_house_rules':      additional_house_rules,
+                   'bathroom_label':              bathroom_label,
+                   'bed_label':                   bed_label,
+                   'bedroom_label':               bedroom_label,
+                   'guest_label':                 guest_label,
+                   'id':                          results['id'],
+                   'name':                        name,
+                   'person_capacity':             person_capacity,
+                   'photo_count':                 photo_count,
+                   'host_name':                   host_name,
+                   'languages':                   languages,
+                   'room_and_property_type':      room_and_property_type,
+                   'room_type_category':          room_type_category,
+                   'tier_id':                     tier_id,
                    'calendar_last_updated_at':
-                                             calendar_last_updated_at,
-                   'min_nights':             min_nights,
-                   'has_we_work_location':   has_we_work_location,
-                   'location_title':         location_title,
+                                                  calendar_last_updated_at,
+                   'min_nights':                  min_nights,
+                   'has_we_work_location':        has_we_work_location,
+                   'location_title':              location_title,
                    'is_business_travel_ready':
-                                             is_business_travel_ready,
+                                                  is_business_travel_ready,
                    'localized_check_in_time_window':
-                                             localized_check_in_time_window,
+                                                  localized_check_in_time_window,
                    'localized_check_out_time':
-                                             localized_check_out_time,
-                   'lat':                    lat,
-                   'lng':                    lng,
-                   'neighborhood_id':        neighborhood_id,
-                   'license':                license_number,
-                   'requires_license':       requires_license,
+                                                  localized_check_out_time,
+                   'lat':                         lat,
+                   'lng':                         lng,
+                   'neighborhood_id':             neighborhood_id,
+                   'license':                     license_number,
+                   'requires_license':            requires_license,
                    'support_cleaner_living_wage':
-                                             support_cleaner_living_wage,
+                                                  support_cleaner_living_wage,
                    'host_other_property_review_count':
-                                             host_other_property_review_count,
-                   'listing_review_count':   listing_review_count,
-                   'listing_review_score':   listing_review_score,
-                   'visible_review_count':   visible_review_count,
-                   'host_interaction':       host_interaction,
-                   'host_quote':             host_quote,
+                                                  host_other_property_review_count,
+                   'listing_review_count':        listing_review_count,
+                   'listing_review_score':        listing_review_score,
+                   'visible_review_count':        visible_review_count,
+                   'host_interaction':            host_interaction,
+                   'host_quote':                  host_quote,
                    'is_select_market':            is_select_market,
                    'nearby_airport_distance_descriptions':
                                                   nearby_airport_distance_descriptions,
@@ -239,6 +240,8 @@ def get_booking_info(listing_id, min_nights, max_guests):
                   'number_of_adults':   number_of_adults}
 
         response = get_page(url, params)
+        if response is None:
+            break
         # check the status code
         status = response.status_code
         if status == 200:
@@ -306,6 +309,8 @@ def get_reviews_info(listing_id, number_of_reviews):
               'limit':      number_of_reviews + 2}
 
     response = get_page(url, params)
+    if response is None:
+        return None
     status = response.status_code
     if status == 200:
         reviews = response.json()['reviews']
@@ -331,6 +336,45 @@ def get_reviews_info(listing_id, number_of_reviews):
         print("status code", status)
 
 
+def get_calendar_info(listing_id):
+    url = 'https://www.airbnb.com/api/v2/homes_pdp_availability_calendar'
+    current_year_full = datetime.datetime.now().strftime('%Y')
+    current_month = datetime.datetime.now().strftime('%m')
+    params = {'key':        os.getenv("AIRBNB_KEY"),
+              'listing_id': listing_id,
+              'year':       current_year_full,
+              'month':      current_month,
+              'count':      12}
+
+    response = get_page(url, params)
+
+    if response is None:
+        return None
+
+    status = response.status_code
+
+    data = {}
+
+    if status == 200:
+        for month in response['calendar_months']:
+            for day in response['days']:
+                price = None
+                if 'local_price_formatted' in day['price']:
+                    price = day['price']['local_price_formatted']
+
+                data[day['date']] = {'available':             day['available'],
+                                     'max_nights':            day[
+                                                                  'max_nights'],
+                                     'min_nights':            day[
+                                                                  'min_nights'],
+                                     'price':                 price,
+                                     'available_for_checkin': day[
+                                                                  'available_for_checkin'],
+                                     'bookable':              day['bookable']}
+
+        return data
+
+
 def get_all_listing_info(listing_id):
     listing = get_listing_info(listing_id)
     if listing is not None:
@@ -350,11 +394,16 @@ def get_all_listing_info(listing_id):
 
             comment_count = listing['visible_review_count']
             comment_info = get_reviews_info(listing_id, comment_count)
+
             if comment_info is not None:
                 newest_comment, oldest_comment = comment_info
                 listing['newest_reviews_date'] = newest_comment
                 listing['oldest_reviews_date'] = oldest_comment
 
-            df = pd.DataFrame({k: [v] for k, v in listing.items()})
+                calendar = get_calendar_info(listing_id)
+                if calendar is not None:
+                    listing.update(calendar)
 
-            return df
+                    df = pd.DataFrame({k: [v] for k, v in listing.items()})
+
+                    return df

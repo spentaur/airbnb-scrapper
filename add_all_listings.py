@@ -61,6 +61,5 @@ def main():
             upload_to_digital_ocean(listings_full_path)
 
 
-# TODO get calendar info as well
 if __name__ == '__main__':
     main()
