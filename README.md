@@ -29,14 +29,18 @@ Make sure that the proper date directory is made
 1) ~~search_results should be generalized~~
 2) better documentation
 3) ~~handle retries better~~
-4) get calendar information
+4) ~~get calendar information~~
 5) ~~move data to separate repo~~
 6) tests
 7) could this be containerized?
 8) ~~403 errors are listings that no longer exists, handle better~~
 9) data dictionary
-10) make it so you can change cities
+10) ~~make it so you can change cities~~
 11) figure out how to get all listings from big cities where even if price
  is $89 min and max, results are still over 300
 12) add single listing upload to digital ocean
 13) ~~save listing ids in multiple files~~
+14) save pages that failed
+    - search, listings
+    - if a price range fails or a has over 300 or if a page in a range fails
+    - if listing is 403 or couldn't get all the info 
