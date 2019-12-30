@@ -1,4 +1,25 @@
 # This is a program set up to run on Digital Ocean and scrape the airbnb api and save listing information to a csv.
+
+**_Be warned: This Will Take a Long Time To Run!_**  
+Because of airbnb rate limiting, you have to take a decent break when you
+get a 429 error. So search_results can take a long time. Also I've found
+that taking a break between pages for a given range is necessary to ensure
+that listings don't repeat on the next page for whatever reason. If
+someone can think of a better way, let me know.  
+    
+Also, to get all the information on a given listing, you must hit
+multiple urls, some of them multiple times, so that can also take a
+long time.  
+  
+This is why I've chosen to run this on digital ocean servers. I can spin up
+multiple servers and chunk the ids and run them simultaneously. I already
+use them so I have spaces already set up so I can just save all the data
+there, but you could modify this to save it to a database. Just remember
+that any data stored locally on the server wont be available once you
+destroy it. You don't need anything fancy, just go with the $5 a month
+droplet.
+   
+
 ----
 
 ## Getting AirBnB key and query
