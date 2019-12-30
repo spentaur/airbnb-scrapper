@@ -14,6 +14,7 @@ def requests_retry_session(retries=10, backoff_factor=3,
                            status_forcelist=(500, 502, 504, 429),
                            session=None):
     """https://dev.to/ssbozy/python-requests-with-retries-4p03
+    https://www.peterbe.com/plog/best-practice-with-retries-with-requests
 
     just going to go with this"""
     session = session or requests.Session()

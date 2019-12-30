@@ -56,7 +56,9 @@ def go_through_pages_in_range(query, price_min, price_max):
                 if len(page_listing_ids) != 18:
                     has_next_page = False
 
-                take_break(estimated_number_of_pages, page)
+                if (estimated_number_of_pages > 1) and (
+                        page != estimated_number_of_pages):
+                    take_break()
             else:
                 has_next_page = False
 
@@ -82,16 +84,14 @@ def get_listing_ids_from_sections(sections):
     return listing_ids
 
 
-def take_break(estimated_number_of_pages, page):
-    if (estimated_number_of_pages > 1) and (
-            page != estimated_number_of_pages):
-        for remaining in range(20, 0, -1):
-            sys.stdout.write("\r")
-            sys.stdout.write(
-                "{:2d} seconds remaining".format(remaining))
-            sys.stdout.flush()
-            sleep(1)
-        sys.stdout.write("\rComplete!            \n")
+def take_break(sleep_for=20):
+    for remaining in range(sleep_for, 0, -1):
+        sys.stdout.write("\r")
+        sys.stdout.write(
+            "{:2d} seconds remaining".format(remaining))
+        sys.stdout.flush()
+        sleep(1)
+    sys.stdout.write("\rComplete!            \n")
 
 
 def split_and_save_ids(listing_ids, directory, number_of_sections=6):
@@ -143,6 +143,7 @@ def main():
             print("Listings Saved in Price Range:", len(listing_ids))
             print("Total Estimated Listings:", total_estimated_listings)
             print("Total Listings Saved:", len(total_listing_ids))
+            take_break(5)
 
         print("-------------------------------------------")
         print("\n")
