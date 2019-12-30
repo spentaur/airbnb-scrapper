@@ -68,6 +68,7 @@ mkdir ../airbnb-data/listings/CITY/$(date +%Y-%m-%d)
 mkdir ../airbnb-data/ids/CITY/$(date +%Y-%m-%d)'
 ```
 
+----
 
 #### Get all listing ids for city
 
