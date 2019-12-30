@@ -14,7 +14,7 @@ from helpers import get_and_format_location, get_full_file_path, \
 
 def main():
     today = datetime.date.today()
-    city, city_formatted = get_and_format_location()
+    city, city_formatted, _ = get_and_format_location()
 
     id_date = input("Date Id's Collected: ")
     if id_date.lower() == "newest":
