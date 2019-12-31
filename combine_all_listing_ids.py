@@ -38,7 +38,7 @@ def combine_all_listing_ids(city_formatted, date):
     with os.scandir(f'../{folder_path}') as i:
         for entry in i:
             if entry.is_file():
-                df = pd.concat([df, pd.read_csv(entry.path, header=None)])
+                df = pd.concat([df, pd.read_csv(entry.path)])
                 os.remove(entry.path)
 
     df.to_csv(f"../{file_path}", index=None)

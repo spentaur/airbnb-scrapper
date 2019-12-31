@@ -56,9 +56,8 @@ def go_through_pages_in_range(query, price_min, price_max):
                 if len(page_listing_ids) != 18:
                     has_next_page = False
 
-                if (estimated_number_of_pages > 1) and (
-                        page != estimated_number_of_pages):
-                    take_break()
+                take_break(60)
+
             else:
                 has_next_page = False
 
@@ -158,7 +157,6 @@ def main():
             print("Listings Saved in Price Range:", len(listing_ids))
             print("Total Estimated Listings:", total_estimated_listings)
             print("Total Listings Saved:", len(total_listing_ids))
-            take_break(5)
 
         print("-------------------------------------------")
         print("\n")
