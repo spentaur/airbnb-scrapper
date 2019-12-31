@@ -21,7 +21,6 @@ def download_dir(client, dist, local='../', bucket='spentaur'):
                 download_dir(client, subdir.get('Prefix'), local, bucket)
         for file in result.get('Contents', []):
             dest_pathname = os.path.join(local, file.get('Key'))
-            print(os.path.dirname(dest_pathname))
             if not os.path.exists(os.path.dirname(dest_pathname)):
                 os.makedirs(os.path.dirname(dest_pathname))
             client.download_file(bucket, file.get('Key'), dest_pathname)
@@ -39,12 +38,11 @@ def combine_all_listing_ids(city_formatted, date):
     with os.scandir(f'../{folder_path}') as i:
         for entry in i:
             if entry.is_file():
-                print(entry.path)
                 df = pd.concat([df, pd.read_csv(entry.path, header=None)])
                 os.remove(entry.path)
 
     df.to_csv(f"../{file_path}", index=None)
-    upload_to_digital_ocean(file_path)
+    upload_to_digital_ocean(f"../{file_path}")
     print("Done!")
 
 
