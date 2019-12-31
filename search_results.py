@@ -37,7 +37,6 @@ def go_through_pages_in_range(query, price_min, price_max):
         # TODO this will go on forever
         params['items_offset'] = 18 * page
         response = get_page(url, params)
-        print(type(response))
         if response is not None:
             page += 1
             results = response.json()['explore_tabs'][0]
