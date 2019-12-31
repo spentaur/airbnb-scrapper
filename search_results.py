@@ -93,6 +93,7 @@ def combine_all_listing_ids(city_formatted, date):
     client = set_up_digital_ocean(os.getenv("ACCESS_ID"),
                                   os.getenv("SECRET_KEY"))
     folder_path = f'airbnb-data/ids/{city_formatted}/{date}'
+    file_path = f"{folder_path}/{city_formatted}.csv"
     download_dir(client, folder_path)
 
     df = pd.DataFrame()
@@ -103,7 +104,9 @@ def combine_all_listing_ids(city_formatted, date):
                 df = pd.concat([df, pd.read_csv(entry.path, header=None)])
                 os.remove(entry.path)
 
-    df.to_csv(f"{folder_path}/{city_formatted}.csv", index=None)
+    df.to_csv(file_path, index=None)
+    upload_to_digital_ocean(file_path)
+    print("Done!")
 
 
 def get_listing_ids_from_sections(sections):
@@ -146,6 +149,7 @@ def main():
     # TODO verify location and query, basically all user inputs
     # TODO verify that total estimated and total listings are diff
     # TODO change mkdir, should just be in python honestly
+    # TODO starting price none
     today = datetime.date.today()
     city, city_formatted, query = get_and_format_location()
     directory = get_directory(city_formatted, "ids", str(today))
