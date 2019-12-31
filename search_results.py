@@ -5,6 +5,7 @@ import sys
 from time import sleep
 
 import numpy as np
+import pandas as pd
 from dotenv import load_dotenv
 
 from helpers import get_and_format_location, \
@@ -97,6 +98,7 @@ def take_break(sleep_for=20):
 def split_and_save_ids(listing_ids, directory, number_of_sections=6):
     splits = np.array_split(np.array(listing_ids), number_of_sections)
     city_formatted = directory.split("/")[3]
+    # TODO fix this
     for num, ids in enumerate(splits):
         full_file_path = f"{directory}/{city_formatted}_{num + 1}.csv"
         save_listing_ids_to_csv(ids, full_file_path)
@@ -147,7 +149,9 @@ def main():
             total_estimated_listings += estimated_listings_in_range
             if len(listing_ids) > 0:
                 total_listing_ids += listing_ids
-                save_listing_ids_to_csv(listing_ids, full_file_path)
+                prices = [price_min] * len(listing_ids)
+                df = pd.DataFrame(zip(listing_ids, prices))
+                df.to_csv(full_file_path, index=None)
                 upload_to_digital_ocean(full_file_path)
 
             print("Estimated Listings in Price Range:",
