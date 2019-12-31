@@ -402,7 +402,7 @@ def get_all_listing_info(listing_id):
 
                 calendar = get_calendar_info(listing_id)
                 if calendar is not None:
-                    listing.update(calendar)
+                    listing['calendar_info'] = calendar
 
                     df = pd.DataFrame({k: [v] for k, v in listing.items()})
 

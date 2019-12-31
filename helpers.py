@@ -2,7 +2,7 @@ import os
 from time import time
 
 import requests
-from boto3 import session
+from boto3.session import Session
 from dotenv import load_dotenv
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
@@ -56,11 +56,11 @@ def check_and_created_directory(directory):
 
 def set_up_digital_ocean(ACCESS_ID, SECRET_KEY):
     url = 'https://nyc3.digitaloceanspaces.com'
-    client = session.Session().client('s3',
-                                      region_name='nyc3',
-                                      endpoint_url=url,
-                                      aws_access_key_id=ACCESS_ID,
-                                      aws_secret_access_key=SECRET_KEY)
+    client = Session().client('s3',
+                              region_name='nyc3',
+                              endpoint_url=url,
+                              aws_access_key_id=ACCESS_ID,
+                              aws_secret_access_key=SECRET_KEY)
     return client
 
 

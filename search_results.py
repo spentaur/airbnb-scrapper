@@ -5,11 +5,12 @@ import sys
 from time import sleep
 
 import numpy as np
+import pandas as pd
 from dotenv import load_dotenv
 
 from helpers import get_and_format_location, \
     get_directory, get_full_file_path, check_and_created_directory, \
-    get_page, upload_to_digital_ocean
+    get_page, upload_to_digital_ocean, set_up_digital_ocean
 
 load_dotenv()
 
@@ -71,6 +72,40 @@ def save_listing_ids_to_csv(listing_ids, full_file_path):
         writer.writerow(listing_ids)
 
 
+def download_dir(client, dist, local='../', bucket='spentaur'):
+    # https://stackoverflow.com/a/33350380
+    paginator = client.get_paginator('list_objects')
+    for result in paginator.paginate(Bucket=bucket, Delimiter='/',
+                                     Prefix=dist):
+        if result.get('CommonPrefixes') is not None:
+            for subdir in result.get('CommonPrefixes'):
+                download_dir(client, subdir.get('Prefix'), local, bucket)
+        for file in result.get('Contents', []):
+            dest_pathname = os.path.join(local, file.get('Key'))
+            print(os.path.dirname(dest_pathname))
+            if not os.path.exists(os.path.dirname(dest_pathname)):
+                os.makedirs(os.path.dirname(dest_pathname))
+            client.download_file(bucket, file.get('Key'), dest_pathname)
+            client.delete_object(bucket, file.get('Key'))
+
+
+def combine_all_listing_ids(city_formatted, date):
+    client = set_up_digital_ocean(os.getenv("ACCESS_ID"),
+                                  os.getenv("SECRET_KEY"))
+    folder_path = f'airbnb-data/ids/{city_formatted}/{date}'
+    download_dir(client, folder_path)
+
+    df = pd.DataFrame()
+    with os.scandir(f'../{folder_path}') as i:
+        for entry in i:
+            if entry.is_file():
+                print(entry.path)
+                df = pd.concat([df, pd.read_csv(entry.path, header=None)])
+                os.remove(entry.path)
+
+    df.to_csv(f"{folder_path}/{city_formatted}.csv", index=None)
+
+
 def get_listing_ids_from_sections(sections):
     listing_ids = set()
     for section in sections:
@@ -108,6 +143,9 @@ def main():
     # TODO combine function
     # TODO verify that if search_results runs overnight it doesn't change today
     # TODO readme mkdir update
+    # TODO verify location and query, basically all user inputs
+    # TODO verify that total estimated and total listings are diff
+    # TODO change mkdir, should just be in python honestly
     today = datetime.date.today()
     city, city_formatted, query = get_and_format_location()
     directory = get_directory(city_formatted, "ids", str(today))
@@ -143,7 +181,7 @@ def main():
             total_listing_ids += listing_ids
             total_estimated_listings += estimated_listings_in_range
 
-            save_listing_ids_to_csv(total_listing_ids, full_file_path)
+            save_listing_ids_to_csv(listing_ids, full_file_path)
             upload_to_digital_ocean(full_file_path)
 
             print("Estimated Listings in Price Range:",
