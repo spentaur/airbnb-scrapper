@@ -144,11 +144,11 @@ def main():
                   "another way to ensure you get all of them. (use map, "
                   "change types, etc.")
         else:
-            total_listing_ids += listing_ids
             total_estimated_listings += estimated_listings_in_range
-
-            save_listing_ids_to_csv(listing_ids, full_file_path)
-            upload_to_digital_ocean(full_file_path)
+            if len(listing_ids) > 0:
+                total_listing_ids += listing_ids
+                save_listing_ids_to_csv(listing_ids, full_file_path)
+                upload_to_digital_ocean(full_file_path)
 
             print("Estimated Listings in Price Range:",
                   estimated_listings_in_range)
