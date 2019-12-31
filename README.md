@@ -53,9 +53,6 @@ If you just need to get the query, for instance you are searching for
 6) Enter digital ocean Access ID and Secret Key when prompted.
 6) Enter AirBnB key when prompted.
 7) `pipenv install`
-8) `mkdir ../airbnb-data/listings/CITY/$(date +%Y-%m-%d)` Make sure to
- update city to the proper format (champaign_il)
-9) `mkdir ../airbnb-data/ids/CITY/$(date +%Y-%m-%d)`
 
 ```
 git clone https://github.com/spentaur/airbnb-scrapper.git
@@ -63,10 +60,8 @@ git clone https://github.com/spentaur/airbnb-data.git
 cd airbnb-scrapper
 sudo chmod a+x ./setup.sh
 sudo ./setup.sh
-pipenv install
-mkdir ../airbnb-data/listings/CITY/$(date +%Y-%m-%d)
-mkdir ../airbnb-data/ids/CITY/$(date +%Y-%m-%d)'
 ```
+`pipenv install`
 
 ----
 

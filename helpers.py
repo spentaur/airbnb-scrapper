@@ -40,7 +40,10 @@ def get_and_format_location():
 
 
 def get_directory(city_formatted, ids_or_listings, date):
-    return f"../airbnb-data/{ids_or_listings}/{city_formatted}/{date}"
+    folder = f"../airbnb-data/{ids_or_listings}/{city_formatted}/{date}"
+    if not os.path.exists(os.path.dirname(folder)):
+        os.makedirs(os.path.dirname(folder))
+    return folder
 
 
 def get_full_file_path(directory, number=None, price=None):
