@@ -104,20 +104,28 @@ def split_and_save_ids(listing_ids, directory, number_of_sections=6):
 
 
 def main():
+    # TODO changed price range, update readme and split and save?
+    # TODO combine function
+    # TODO verify that if search_results runs overnight it doesn't change today
+    # TODO readme mkdir update
     today = datetime.date.today()
     city, city_formatted, query = get_and_format_location()
-    max_price = input("Highest Price: ")
     directory = get_directory(city_formatted, "ids", str(today))
-    full_file_path = get_full_file_path(directory)
     check_and_created_directory(directory)
-
+    starting_price = int(input("Starting Price: "))
+    ending_price = input("Ending Price: ")
+    if ending_price == '':
+        ending_price = 1000
+    else:
+        ending_price = int(ending_price)
     total_estimated_listings = 0
     total_listing_ids = []
     over_300 = []
 
-    for price_min in range(10, int(max_price) + 1):
+    for price_min in range(starting_price, ending_price + 1):
+        full_file_path = get_full_file_path(directory, price_min)
         print("Price:", price_min)
-        if price_min < int(max_price) - 1:
+        if price_min < 1000:
             price_max = price_min
         else:
             price_max = None
@@ -148,7 +156,7 @@ def main():
         print("-------------------------------------------")
         print("\n")
 
-    split_and_save_ids(total_listing_ids, directory)
+    # split_and_save_ids(total_listing_ids, directory)
 
     if not over_300:
         print("Listings in these price ranges had more than 300 estimated "

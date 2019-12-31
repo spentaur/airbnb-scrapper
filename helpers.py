@@ -43,9 +43,10 @@ def get_directory(city_formatted, ids_or_listings, date):
     return f"../airbnb-data/{ids_or_listings}/{city_formatted}/{date}"
 
 
-def get_full_file_path(directory, number=None):
+def get_full_file_path(directory, number=None, price=None):
     city_formatted = directory.split("/")[-2]
-    return f"{directory}/{city_formatted}{f'_{number}' if number else ''}.csv"
+    return f"{directory}/{city_formatted}{f'_{number}' if number else ''}" \
+           f"{f'_{price}' if price else ''}.csv"
 
 
 def check_and_created_directory(directory):
