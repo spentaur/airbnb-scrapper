@@ -16,6 +16,7 @@ def main():
     today = datetime.date.today()
     city, city_formatted, _ = get_and_format_location()
 
+    # helper
     id_date = input("Date Id's Collected: ")
     if id_date.lower() == "newest":
         s = "/"
