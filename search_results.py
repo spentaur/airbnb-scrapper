@@ -123,7 +123,7 @@ def main():
     else:
         ending_price = int(ending_price)
     total_estimated_listings = 0
-    total_listing_ids = []
+    total_listing_ids = set()
     over_300 = []
 
     for price_min in range(starting_price, ending_price + 1):
@@ -146,7 +146,7 @@ def main():
         else:
             total_estimated_listings += estimated_listings_in_range
             if len(listing_ids) > 0:
-                total_listing_ids += listing_ids
+                total_listing_ids = total_listing_ids.union(set(listing_ids))
                 prices = [price_min] * len(listing_ids)
                 df = pd.DataFrame(zip(listing_ids, prices))
                 df.to_csv(full_file_path, index=None)
