@@ -68,16 +68,6 @@ def go_through_pages_in_range(query, price_min, price_max):
             break
         if True in attempts_conditions:
             attempts += 1
-            print("\n")
-            print("\n")
-            print("\n")
-            print("\n")
-            print("\n")
-            print("\n")
-            print("\n")
-            print("\n")
-            print("\n")
-            print("FUCKED")
             continue
 
         attempts = 0
@@ -151,6 +141,8 @@ def main():
         num_saved = 0
         if len(total_listings_saved) > 0:
             num_saved = total_listings_saved['id'].nunique()
+
+        assert (num_saved == total_estimated_listings)
 
         print("Estimated Listings in Price Range:",
               estimated_number)
