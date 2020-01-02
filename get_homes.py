@@ -1,14 +1,15 @@
 import datetime
 import os
+import sys
+from time import sleep
 
 import pandas as pd
 from dotenv import load_dotenv
-from tqdm import tqdm
 
 from get_listing_info import get_all_listing_info
 from helpers import get_and_format_location, \
     get_directory, get_full_file_path, check_and_created_directory, \
-    get_page, upload_to_digital_ocean, take_break
+    get_page, upload_to_digital_ocean
 
 load_dotenv()
 
@@ -27,7 +28,7 @@ def go_through_pages_in_range(query, price_min, price_max):
 
     url = 'https://www.airbnb.com/api/v2/explore_tabs'
     params = {'_format':         'for_explore_search_web',
-              'items_per_grid':  str(items_per_grid),
+              'items_per_grid':  items_per_grid,
               'key':             os.getenv("AIRBNB_KEY"),
               'query':           f'{query}',
               'search_type':     'pagination',
@@ -52,37 +53,45 @@ def go_through_pages_in_range(query, price_min, price_max):
         ]
         estimated_pages = min(7, -(estimated_range // -50))
 
-        listing_ids += page_listing_ids
-
         break_conditions = {
-            attempts > max_attempts,
+            attempts >= max_attempts,
             estimated_range > 306
         }
         attempts_conditions = {
             response is None,
-            len(set(listing_ids)) != len(listing_ids)
+            len(set(listing_ids + page_listing_ids)) != len(
+                listing_ids + page_listing_ids)
         }
 
         if True in break_conditions:
             break
         if True in attempts_conditions:
             attempts += 1
-            take_break(10)
+            print("Attempting Again...")
+            sleep(10)
             continue
 
         attempts = 0
         page += 1
-        print(f"Page: {page} / {max(estimated_pages, 1)}")
+        listing_ids += page_listing_ids
         if page == 1:
             print("Estimated Listings in Range: ", estimated_range)
         print("\n")
 
-        if len(page_listing_ids) == 0:
-            take_break(10)
+        print(f"Page: {page} / {max(estimated_pages, 1)}")
 
-        for listing_id in tqdm(page_listing_ids):
+        if len(page_listing_ids) == 0:
+            sleep(10)
+
+        for num, listing_id in enumerate(page_listing_ids):
+            sys.stdout.write("\r")
+            sys.stdout.write(f"{num + 1} / {len(page_listing_ids)}")
+            sys.stdout.flush()
             listing = get_all_listing_info(listing_id)
             listings = pd.concat([listings, listing])
+            sleep(10)
+
+        sys.stdout.write(f"\rDone with page {page}!            \n")
 
     return listings, estimated_range
 
@@ -98,6 +107,7 @@ def main():
     check_and_created_directory(directory)
     starting_price = int(input("Starting Price: "))
     ending_price = input("Ending Price: ")
+    print("\n")
     total_listings_saved = pd.DataFrame()
 
     if ending_price == '':
