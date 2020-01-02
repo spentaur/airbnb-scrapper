@@ -364,15 +364,12 @@ def get_calendar_info(listing_id):
             if 'local_price_formatted' in day['price']:
                 price = day['price']['local_price_formatted']
 
-            data[day['date']] = {'available':             day['available'],
-                                 'max_nights':            day[
-                                                              'max_nights'],
-                                 'min_nights':            day[
-                                                              'min_nights'],
-                                 'price':                 price,
-                                 'available_for_checkin': day[
-                                                              'available_for_checkin'],
-                                 'bookable':              day['bookable']}
+            print(day['date'])
+            data[day['date']] = {'available':  day['available'],
+                                 'max_nights': day['max_nights'],
+                                 'min_nights': day['min_nights'],
+                                 'price':      price,
+                                 'bookable':   day['bookable']}
 
     return data
 
