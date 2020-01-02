@@ -12,6 +12,7 @@ load_dotenv()
 
 
 # TODO change this to update it for now just saving listings not listing ids
+# TODO make sure that it's 1000 or 990 csv
 
 
 def download_dir(client, dist, local='../', bucket='spentaur'):

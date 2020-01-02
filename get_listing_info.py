@@ -240,9 +240,7 @@ def get_booking_info(listing_id, min_nights, max_guests):
               'number_of_infants':  0, }
 
     url = 'https://www.airbnb.com/api/v2/pdp_listing_booking_details'
-    print("Max Guests = ", max_guests)
     for number_of_adults in range(1, max_guests + 1):
-        print(f"Getting Info for {number_of_adults} guests")
 
         params['number_of_adults'] = number_of_adults
 
@@ -379,7 +377,6 @@ def get_all_listing_info(listing_id):
     if listing is None:
         return None
 
-    print(f"Getting Booking Info for {listing_id}")
     booking_info = get_booking_info(listing_id, listing['min_nights'],
                                     listing['person_capacity'])
 
@@ -396,7 +393,6 @@ def get_all_listing_info(listing_id):
     listing['date_gathered'] = datetime.date.today().strftime(
         "%Y-%m-%d")
 
-    print(f"Getting Review Info for {listing_id}")
     review_count = listing['visible_review_count']
     review_info = get_reviews_info(listing_id, review_count)
 
@@ -407,7 +403,6 @@ def get_all_listing_info(listing_id):
     listing['newest_reviews_date'] = newest_comment
     listing['oldest_reviews_date'] = oldest_comment
 
-    print(f"Getting Calendar Info for {listing_id}")
     calendar = get_calendar_info(listing_id)
     if calendar is None:
         return None

@@ -13,8 +13,8 @@ load_dotenv()
 
 
 def go_through_pages_in_range(query, price_min, price_max):
-    prev_page_ids = set()
-    listing_ids = set()
+    prev_page_ids = []
+    listing_ids = []
     listings = pd.DataFrame()
 
     has_next_page = True
@@ -44,17 +44,15 @@ def go_through_pages_in_range(query, price_min, price_max):
         estimated_range = home_tab_meta_data['listings_count']
         has_next_page = results['pagination_metadata']['has_next_page']
         sections = results['sections']
-        page_listing_ids = {
+        page_listing_ids = [
             listing['listing']['id']
             for section in sections
             if 'listings' in section
             for listing in section['listings']
-        }
+        ]
         estimated_pages = min(7, -(estimated_range // -50))
-        num_on_page = len(page_listing_ids)
-        num_previously = len(listing_ids)
-        estimated_combined_len = num_on_page + num_previously
-        listing_ids = listing_ids.union(page_listing_ids)
+
+        listing_ids += page_listing_ids
 
         break_conditions = {
             attempts > max_attempts,
@@ -63,13 +61,23 @@ def go_through_pages_in_range(query, price_min, price_max):
         }
         attempts_conditions = {
             response is None,
-            estimated_combined_len != len(listing_ids)
+            len(set(listing_ids)) != len(listing_ids)
         }
 
         if True in break_conditions:
             break
         if True in attempts_conditions:
             attempts += 1
+            print("\n")
+            print("\n")
+            print("\n")
+            print("\n")
+            print("\n")
+            print("\n")
+            print("\n")
+            print("\n")
+            print("\n")
+            print("FUCKED")
             continue
 
         attempts = 0
@@ -83,7 +91,7 @@ def go_through_pages_in_range(query, price_min, price_max):
         if len(page_listing_ids) == 0:
             take_break(10)
 
-        for listing_id in page_listing_ids:
+        for num, listing_id in enumerate(page_listing_ids):
             listing = get_all_listing_info(listing_id)
             listings = pd.concat([listings, listing])
             take_break(10)
