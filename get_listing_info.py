@@ -364,7 +364,6 @@ def get_calendar_info(listing_id):
             if 'local_price_formatted' in day['price']:
                 price = day['price']['local_price_formatted']
 
-            print(day['date'])
             data[day['date']] = {'available':  day['available'],
                                  'max_nights': day['max_nights'],
                                  'min_nights': day['min_nights'],
