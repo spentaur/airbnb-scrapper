@@ -372,7 +372,6 @@ def get_calendar_info(listing_id):
 
 
 def get_all_listing_info(listing_id):
-    print(f"Getting Info for {listing_id}")
     listing = get_listing_info(listing_id)
     if listing is None:
         return None
@@ -411,6 +410,4 @@ def get_all_listing_info(listing_id):
 
     df = pd.DataFrame({k: [v] for k, v in listing.items()})
 
-    print(f"Done with {listing_id}")
-    print("\n")
     return df

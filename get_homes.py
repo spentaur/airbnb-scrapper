@@ -3,6 +3,7 @@ import os
 
 import pandas as pd
 from dotenv import load_dotenv
+from tqdm import tqdm
 
 from get_listing_info import get_all_listing_info
 from helpers import get_and_format_location, \
@@ -13,7 +14,6 @@ load_dotenv()
 
 
 def go_through_pages_in_range(query, price_min, price_max):
-    prev_page_ids = []
     listing_ids = []
     listings = pd.DataFrame()
 
@@ -56,8 +56,7 @@ def go_through_pages_in_range(query, price_min, price_max):
 
         break_conditions = {
             attempts > max_attempts,
-            estimated_range > 306,
-            prev_page_ids == page_listing_ids
+            estimated_range > 306
         }
         attempts_conditions = {
             response is None,
@@ -68,6 +67,7 @@ def go_through_pages_in_range(query, price_min, price_max):
             break
         if True in attempts_conditions:
             attempts += 1
+            take_break(10)
             continue
 
         attempts = 0
@@ -76,16 +76,13 @@ def go_through_pages_in_range(query, price_min, price_max):
         if page == 1:
             print("Estimated Listings in Range: ", estimated_range)
         print("\n")
-        prev_page_ids = page_listing_ids
 
         if len(page_listing_ids) == 0:
             take_break(10)
 
-        for num, listing_id in enumerate(page_listing_ids):
-            print(f"{num + 1} / {len(page_listing_ids)}")
+        for listing_id in tqdm(page_listing_ids):
             listing = get_all_listing_info(listing_id)
             listings = pd.concat([listings, listing])
-            take_break(10)
 
     return listings, estimated_range
 

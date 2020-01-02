@@ -16,6 +16,7 @@ jupyter = "*"
 python-dateutil = "*"
 iteration-utilities = "*"
 urllib3 = "*"
+tqdm = "*"
 
 [requires]
 python_version = "3.7"
