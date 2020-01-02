@@ -139,12 +139,15 @@ def main():
             total_listings_saved = pd.concat([listings, total_listings_saved])
 
         total_estimated_listings += estimated_number
+        num_saved = 0
+        if len(total_listings_saved > 0):
+            num_saved = total_listings_saved['id'].nunique()
 
         print("Estimated Listings in Price Range:",
               estimated_number)
         print("Listings Saved in Price Range:", len(listings))
         print("Total Estimated Listings:", total_estimated_listings)
-        print("Total Listings Saved:", total_listings_saved['id'].nunique())
+        print("Total Listings Saved:", num_saved)
 
         print("-------------------------------------------")
         print("\n")
