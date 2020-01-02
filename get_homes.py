@@ -92,6 +92,7 @@ def go_through_pages_in_range(query, price_min, price_max):
             take_break(10)
 
         for num, listing_id in enumerate(page_listing_ids):
+            print(f"{num} / {len(page_listing_ids)}")
             listing = get_all_listing_info(listing_id)
             listings = pd.concat([listings, listing])
             take_break(10)
