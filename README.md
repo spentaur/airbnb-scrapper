@@ -2,7 +2,7 @@
 
 **_Be warned: This Will Take a Long Time To Run!_**  
 Because of airbnb rate limiting, you have to take a decent break when you
-get a 429 error. So search_results can take a long time. Also I've found
+get a 429 error. So get_homes can take a long time. Also I've found
 that taking a break between pages for a given range is necessary to ensure
 that listings don't repeat on the next page for whatever reason. If
 someone can think of a better way, let me know.  
@@ -12,8 +12,10 @@ multiple urls, some of them multiple times, so that can also take a
 long time.  
   
 This is why I've chosen to run this on digital ocean servers. I can spin up
-multiple servers and chunk the ids and run them simultaneously. I already
-use them so I have spaces already set up so I can just save all the data
+multiple servers and chunk the search ranges and run them simultaneously. I
+ already
+use Digital Ocean so I have spaces already set up so I can just save all the
+ data
 there, but you could modify this to save it to a database. Just remember
 that any data stored locally on the server wont be available once you
 destroy it. You don't need anything fancy, just go with the $5 a month
@@ -36,7 +38,7 @@ droplet.
 6) In the  `Filter Request Parameters` box type 'key'. This is the `Airbnb
  Key` requested during set up
 7) Next type 'query'. This will be the 'query' field requested during
-  `search_results.py`. It should look similar to the city you are searching
+  `get_homes.py`. It should look similar to the city you are searching
    for (Example: Champaign, IL, United States)
 
 If you just need to get the query, for instance you are searching for
@@ -65,18 +67,12 @@ sudo ./setup.sh
 
 ----
 
-#### Get all listing ids for city
+#### Get all listings for city
 
-1) `python search_results.py`
+1) `python get_homes.py`
 2) Enter City (Example: Champaign, Il)
 3) Enter Query (Example: Champaign, Il, United States)
-
-
-#### Get all listings info
-
-1) `python add_all_listings.py`
-2) Enter City (Example: Champaign, Il)
-3) Enter which subset of listing id's you'd like to get information on.
+4) Enter Staring and Ending Prices (10-1000)
 
 
 #### TODO
