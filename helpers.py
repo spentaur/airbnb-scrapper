@@ -1,4 +1,6 @@
 import os
+import sys
+from time import sleep
 from time import time
 
 import requests
@@ -8,6 +10,9 @@ from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
 load_dotenv()
+
+
+# TODO this still maybe use
 
 
 def requests_retry_session(retries=10, backoff_factor=3,
@@ -39,8 +44,8 @@ def get_and_format_location():
     return city, city_formatted, query
 
 
-def get_directory(city_formatted, ids_or_listings, date):
-    folder = f"../airbnb-data/{ids_or_listings}/{city_formatted}/{date}"
+def get_directory(city_formatted, date):
+    folder = f"../airbnb-data/{city_formatted}/{date}"
     if not os.path.exists(os.path.dirname(folder)):
         os.makedirs(os.path.dirname(folder))
     return folder
@@ -75,11 +80,11 @@ def get_page(url, params):
         print('It failed :(')
         print(x)
     else:
-        print('It eventually worked', response.status_code)
         return response
     finally:
         t1 = time()
-        print('Took', t1 - t0, 'seconds')
+        if t1 - t0 > 4:
+            print('Took', t1 - t0, 'seconds')
 
 
 def upload_to_digital_ocean(full_file_path):
@@ -88,3 +93,13 @@ def upload_to_digital_ocean(full_file_path):
 
     client = set_up_digital_ocean(ACCESS_ID, SECRET_KEY)
     client.upload_file(full_file_path, 'spentaur', full_file_path[3:])
+
+
+def take_break(sleep_for=20):
+    for remaining in range(sleep_for, 0, -1):
+        sys.stdout.write("\r")
+        sys.stdout.write(
+            "{:2d} seconds remaining".format(remaining))
+        sys.stdout.flush()
+        sleep(1)
+    sys.stdout.write("\rComplete!            \n")

@@ -11,6 +11,9 @@ from helpers import set_up_digital_ocean, upload_to_digital_ocean, \
 load_dotenv()
 
 
+# TODO change this to update it for now just saving listings not listing ids
+
+
 def download_dir(client, dist, local='../', bucket='spentaur'):
     # https://stackoverflow.com/a/33350380
     paginator = client.get_paginator('list_objects')
@@ -52,7 +55,7 @@ if __name__ == '__main__':
     id_date = input("Date Id's Collected: ")
     if id_date.lower() == "":
         s = "/"
-        folder = get_directory(city_formatted, 'ids', str(today)).split('/')[
+        folder = get_directory(city_formatted, str(today)).split('/')[
                  :-1]
         folder = s.join(folder)
         dates = [parse(f.name) for f in os.scandir(folder) if f.is_dir()]
