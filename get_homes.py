@@ -140,7 +140,7 @@ def main():
 
         total_estimated_listings += estimated_number
         num_saved = 0
-        if len(total_listings_saved > 0):
+        if len(total_listings_saved) > 0:
             num_saved = total_listings_saved['id'].nunique()
 
         print("Estimated Listings in Price Range:",
