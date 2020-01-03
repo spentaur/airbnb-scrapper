@@ -75,7 +75,7 @@ def go_through_pages_in_range(query, price_min, price_max):
             has_next_page = True
             print(len_set)
             print(len_list)
-            offset_offset = len_set - len_list
+            offset_offset = len_list - len_set
             print(offset_offset)
             attempts += 1
 
