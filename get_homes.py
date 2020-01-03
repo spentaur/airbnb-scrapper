@@ -146,7 +146,7 @@ def main():
             sys.stdout.flush()
             listing = get_all_listing_info(listing_id)
             listings = pd.concat([listings, listing])
-            sleep(10)
+            # sleep(10)
 
         sys.stdout.write(f"\rDone!            \n")
 
