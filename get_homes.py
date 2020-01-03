@@ -16,7 +16,7 @@ load_dotenv()
 
 def go_through_pages_in_range(query, price_min, price_max):
     listing_ids = []
-    prev_page = []
+    offset_offset = 0
 
     has_next_page = True
 
@@ -38,7 +38,7 @@ def go_through_pages_in_range(query, price_min, price_max):
         params['price_max'] = price_max
 
     while has_next_page:
-        params['items_offset'] = items_per_grid * page
+        params['items_offset'] = (items_per_grid * page) - offset_offset
         response = get_page(url, params)
         results = response.json()['explore_tabs'][0]
         home_tab_meta_data = results['home_tab_metadata']
@@ -65,7 +65,6 @@ def go_through_pages_in_range(query, price_min, price_max):
 
         if True in break_conditions:
             print(break_conditions)
-            assert f"Broken {price_min}"
             break
         if True in attempts_conditions:
             print("\n")
@@ -76,9 +75,9 @@ def go_through_pages_in_range(query, price_min, price_max):
             has_next_page = True
             print(len_set)
             print(len_list)
+            offset_offset = len_set - len_list
+            print(offset_offset)
             attempts += 1
-            page -= 1
-            listing_ids = list(set(listing_ids) - set(prev_page))
 
             continue
 
