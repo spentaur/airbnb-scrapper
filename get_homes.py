@@ -16,12 +16,12 @@ load_dotenv()
 
 def go_through_pages_in_range(query, price_min, price_max):
     listing_ids = []
-    listings = pd.DataFrame()
 
     has_next_page = True
 
     attempts = 0
     page = 0
+    offset_offset = 0
     items_per_grid = 50
     max_attempts = 3
     estimated_range = 0
@@ -38,7 +38,7 @@ def go_through_pages_in_range(query, price_min, price_max):
         params['price_max'] = price_max
 
     while has_next_page:
-        params['items_offset'] = items_per_grid * page
+        params['items_offset'] = (items_per_grid * page) - offset_offset
         response = get_page(url, params)
         results = response.json()['explore_tabs'][0]
         home_tab_meta_data = results['home_tab_metadata']
@@ -67,9 +67,12 @@ def go_through_pages_in_range(query, price_min, price_max):
             print(break_conditions)
             break
         if True in attempts_conditions:
-            attempts += 1
+            print("\n")
             print("Attempting Again...")
             has_next_page = True
+            offset_offset = len(set(listing_ids + page_listing_ids)) - len(
+                listing_ids + page_listing_ids)
+            attempts += 1
             sleep(10)
             continue
 
@@ -78,24 +81,17 @@ def go_through_pages_in_range(query, price_min, price_max):
         listing_ids += page_listing_ids
         if page == 1:
             print("Estimated Listings in Range: ", estimated_range)
-        print("\n")
+            print("\n")
 
-        print(f"Page: {page} / {max(estimated_pages, 1)}")
+        sys.stdout.write("\r")
+        sys.stdout.write(f"Page: {page} / {max(estimated_pages, 1)}")
+        sys.stdout.flush()
 
-        if len(page_listing_ids) == 0:
-            sleep(10)
+        # sleep(10)
 
-        for num, listing_id in enumerate(page_listing_ids):
-            sys.stdout.write("\r")
-            sys.stdout.write(f"{num + 1} / {len(page_listing_ids)}")
-            sys.stdout.flush()
-            listing = get_all_listing_info(listing_id)
-            listings = pd.concat([listings, listing])
-            sleep(10)
+    sys.stdout.write(f"\rDone Getting {len(listing_ids)} Listing Ids!  \n")
 
-        sys.stdout.write(f"\rDone with page {page}!            \n")
-
-    return listings, estimated_range
+    return listing_ids, estimated_range
 
 
 def main():
@@ -104,6 +100,7 @@ def main():
     # TODO verify location and query, basically all user inputs
 
     today = datetime.date.today()
+    listings = pd.DataFrame()
     city, city_formatted, query = get_and_format_location()
     directory = get_directory(city_formatted, str(today))
     check_and_created_directory(directory)
@@ -134,17 +131,28 @@ def main():
             price_max = None
 
         data = go_through_pages_in_range(query, price_min, price_max)
-        listings, estimated_number = data
+        listings_ids, estimated_number = data
 
         if estimated_number >= 300:
             over_300.append((price_min, price_max))
             print("There are over 300 estimated listings in this range")
             continue
 
+        for num, listing_id in enumerate(listings_ids):
+            sys.stdout.write("\r")
+            sys.stdout.write(f"Listing: {num + 1} / {len(listings_ids)}")
+            sys.stdout.flush()
+            listing = get_all_listing_info(listing_id)
+            listings = pd.concat([listings, listing])
+            sleep(10)
+
+        sys.stdout.write(f"\rDone!            \n")
+
         if len(listings) > 0:
             listings.to_csv(full_file_path, index=None)
             upload_to_digital_ocean(full_file_path)
-            total_listings_saved = pd.concat([listings, total_listings_saved])
+            total_listings_saved = pd.concat([listings,
+                                              total_listings_saved])
 
         total_estimated_listings += estimated_number
         num_saved = 0
