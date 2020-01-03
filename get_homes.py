@@ -71,10 +71,14 @@ def go_through_pages_in_range(query, price_min, price_max):
             print("\n")
             print("Attempting Again...")
             print(f"Attempt number {attempts}")
+            len_set = len(set(listing_ids + page_listing_ids))
+            len_list = len(listing_ids + page_listing_ids)
             has_next_page = True
-            offset_offset = len(set(listing_ids + page_listing_ids)) - len(
-                listing_ids + page_listing_ids)
+            offset_offset = len_set - len_list
+            print(len_set)
+            print(len_list)
             attempts += 1
+
             continue
 
         page += 1
