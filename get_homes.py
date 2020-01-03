@@ -64,6 +64,7 @@ def go_through_pages_in_range(query, price_min, price_max):
 
         if True in break_conditions:
             print(break_conditions)
+            assert f"Broken {price_min}"
             break
         if True in attempts_conditions:
             print("\n")
