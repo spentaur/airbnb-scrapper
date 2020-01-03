@@ -77,6 +77,7 @@ def go_through_pages_in_range(query, price_min, price_max):
             print(len_list)
             attempts += 1
             page -= 1
+            listing_ids = list(set(listing_ids) - set(page_listing_ids))
 
             continue
 
