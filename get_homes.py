@@ -68,6 +68,7 @@ def go_through_pages_in_range(query, price_min, price_max):
         if True in attempts_conditions:
             attempts += 1
             print("Attempting Again...")
+            has_next_page = True
             sleep(10)
             continue
 

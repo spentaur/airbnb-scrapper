@@ -365,8 +365,7 @@ def get_calendar_info(listing_id):
             data[day['date']] = {'available':  day['available'],
                                  'max_nights': day['max_nights'],
                                  'min_nights': day['min_nights'],
-                                 'price':      price,
-                                 'bookable':   day['bookable']}
+                                 'price':      price}
 
     return data
 

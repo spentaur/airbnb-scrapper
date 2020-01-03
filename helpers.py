@@ -1,7 +1,6 @@
 import os
 import sys
 from time import sleep
-from time import time
 
 import requests
 from boto3.session import Session
@@ -73,7 +72,6 @@ def set_up_digital_ocean(ACCESS_ID, SECRET_KEY):
 
 
 def get_page(url, params):
-    t0 = time()
     try:
         response = requests_retry_session().get(url=url, params=params)
     except Exception as x:
@@ -81,10 +79,6 @@ def get_page(url, params):
         print(x)
     else:
         return response
-    finally:
-        t1 = time()
-        if t1 - t0 > 4:
-            print('Took', t1 - t0, 'seconds')
 
 
 def upload_to_digital_ocean(full_file_path):
