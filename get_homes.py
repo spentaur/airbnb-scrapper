@@ -21,7 +21,6 @@ def go_through_pages_in_range(query, price_min, price_max):
 
     attempts = 0
     page = 0
-    offset_offset = 0
     items_per_grid = 50
     max_attempts = 3
     estimated_range = 0
@@ -38,7 +37,7 @@ def go_through_pages_in_range(query, price_min, price_max):
         params['price_max'] = price_max
 
     while has_next_page:
-        params['items_offset'] = (items_per_grid * page) - offset_offset
+        params['items_offset'] = items_per_grid * page
         response = get_page(url, params)
         results = response.json()['explore_tabs'][0]
         home_tab_meta_data = results['home_tab_metadata']
@@ -70,10 +69,8 @@ def go_through_pages_in_range(query, price_min, price_max):
             print("\n")
             print("Attempting Again...")
             has_next_page = True
-            offset_offset = len(set(listing_ids + page_listing_ids)) - len(
-                listing_ids + page_listing_ids)
+            page = 0
             attempts += 1
-            sleep(10)
             continue
 
         attempts = 0
@@ -86,8 +83,6 @@ def go_through_pages_in_range(query, price_min, price_max):
         sys.stdout.write("\r")
         sys.stdout.write(f"Page: {page} / {max(estimated_pages, 1)}")
         sys.stdout.flush()
-
-        # sleep(10)
 
     sys.stdout.write(f"\rDone Getting {len(listing_ids)} Listing Ids!  \n")
 
