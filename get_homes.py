@@ -153,6 +153,8 @@ def main():
             upload_to_digital_ocean(full_file_path)
             total_listings_saved = pd.concat([listings,
                                               total_listings_saved])
+        else:
+            sleep(10)
 
         total_estimated_listings += estimated_number
         num_saved = 0
