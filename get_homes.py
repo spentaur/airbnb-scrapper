@@ -68,13 +68,17 @@ def go_through_pages_in_range(query, price_min, price_max):
             assert f"Broken {price_min}"
             break
         if True in attempts_conditions:
+            print("\n")
+            print("Attempting Again...")
+            print(f"Attempt number {attempts + 1}")
+            len_set = len(set(listing_ids + page_listing_ids))
+            len_list = len(listing_ids + page_listing_ids)
+            has_next_page = True
+            print(len_set)
+            print(len_list)
             attempts += 1
             page -= 1
             listing_ids = list(set(listing_ids) - set(prev_page))
-            has_next_page = True
-            print("\n")
-            print("Attempting Again...")
-            print(f"Attempt number {attempts}")
 
             continue
 
