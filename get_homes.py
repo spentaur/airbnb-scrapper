@@ -32,7 +32,11 @@ def go_through_pages_in_range(query, price_min, price_max):
               'query':           f'{query}',
               'search_type':     'pagination',
               'selected_tab_id': 'home_tab',
-              'price_min':       price_min}
+              'price_min':       price_min,
+              'client_session_id':
+                                 '524d5508-658b-49fa-91b7-908d6cdbe9eb',
+              'federated_search_session_id':
+                                 '1483e34c-0dac-4599-b3cd-e21f8a5ee6bb'}
     if price_max:
         params['price_max'] = price_max
 
@@ -69,11 +73,12 @@ def go_through_pages_in_range(query, price_min, price_max):
         if True in attempts_conditions:
             print("\n")
             print("Attempting Again...")
+            print(f"Attempt number {attempts}")
             has_next_page = True
             page = 0
             attempts += 1
             listing_ids = []
-            sleep(10)
+            sleep(30)
             continue
 
         attempts = 0
