@@ -16,6 +16,7 @@ load_dotenv()
 
 def go_through_pages_in_range(query, price_min, price_max):
     listing_ids = []
+    prev_page = []
 
     has_next_page = True
 
@@ -77,12 +78,13 @@ def go_through_pages_in_range(query, price_min, price_max):
             print(len_list)
             attempts += 1
             page -= 1
-            listing_ids = list(set(listing_ids) - set(page_listing_ids))
+            listing_ids = list(set(listing_ids) - set(prev_page))
 
             continue
 
         page += 1
         listing_ids += page_listing_ids
+        prev_page = page_listing_ids
         if page == 1:
             print("Estimated Listings in Range: ", estimated_range)
             print("\n")
