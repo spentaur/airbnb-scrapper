@@ -71,6 +71,7 @@ def go_through_pages_in_range(query, price_min, price_max):
             has_next_page = True
             page = 0
             attempts += 1
+            listing_ids = []
             continue
 
         attempts = 0
