@@ -314,10 +314,6 @@ def get_reviews_info(listing_id, number_of_reviews):
 
     reviews = response.json()['reviews']
 
-    if len(reviews) != number_of_reviews:
-        # TODO can't trust this, need a better way
-        print("Len Reviews Not Equal to Number of Reviews")
-
     oldest = None
     newest = None
     for review in reviews:
@@ -330,7 +326,7 @@ def get_reviews_info(listing_id, number_of_reviews):
             newest = max(created_at, newest)
         else:
             newest = created_at
-    return newest, oldest
+    return newest, oldest, len(reviews)
 
 
 def get_calendar_info(listing_id):
@@ -397,9 +393,10 @@ def get_all_listing_info(listing_id):
     if review_info is None:
         return None
 
-    newest_comment, oldest_comment = review_info
+    newest_comment, oldest_comment, len_reviews = review_info
     listing['newest_reviews_date'] = newest_comment
     listing['oldest_reviews_date'] = oldest_comment
+    listing['len_reviews'] = len_reviews
 
     calendar = get_calendar_info(listing_id)
     if calendar is None:
