@@ -74,7 +74,7 @@ def go_through_pages_in_range(query, price_min, price_max):
             page = 0
             listing_ids = []
             has_next_page = True
-            take_break(30)
+            take_break(60)
 
             continue
 
@@ -89,6 +89,8 @@ def go_through_pages_in_range(query, price_min, price_max):
         sys.stdout.flush()
 
     sys.stdout.write(f"\rDone Getting {len(listing_ids)} Listing Ids!  \n")
+
+    assert (len(listing_ids) == estimated_range)
 
     return listing_ids, estimated_range
 
