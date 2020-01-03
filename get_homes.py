@@ -71,6 +71,14 @@ def go_through_pages_in_range(query, price_min, price_max):
             print("Attempting Again...")
             print(f"Attempt number {attempts + 1}")
             attempts += 1
+            tmp_list = listing_ids + page_listing_ids
+            seen = set()
+            dupe_idx = []
+            for idx, id in enumerate(tmp_list):
+                if id in seen:
+                    dupe_idx.append(idx)
+                seen.add(id)
+            print(dupe_idx)
             page = 0
             listing_ids = []
             has_next_page = True
