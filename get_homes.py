@@ -100,7 +100,6 @@ def main():
     # TODO verify location and query, basically all user inputs
 
     today = datetime.date.today()
-    listings = pd.DataFrame()
     city, city_formatted, query = get_and_format_location()
     directory = get_directory(city_formatted, str(today))
     check_and_created_directory(directory)
@@ -124,6 +123,7 @@ def main():
 
     for price_min in range(starting_price, ending_price + 1):
         full_file_path = get_full_file_path(directory, price_min)
+        listings = pd.DataFrame()
         print("Price:", price_min)
         if price_min < 1000:
             price_max = price_min
