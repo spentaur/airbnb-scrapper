@@ -22,6 +22,7 @@ def go_through_pages_in_range(query, price_min, price_max):
     attempts = 0
     page = 0
     items_per_grid = 50
+    offset_offset = 0
     max_attempts = 10
     estimated_range = 0
 
@@ -32,16 +33,12 @@ def go_through_pages_in_range(query, price_min, price_max):
               'query':           f'{query}',
               'search_type':     'pagination',
               'selected_tab_id': 'home_tab',
-              'price_min':       price_min,
-              'client_session_id':
-                                 '524d5508-658b-49fa-91b7-908d6cdbe9eb',
-              'federated_search_session_id':
-                                 '1483e34c-0dac-4599-b3cd-e21f8a5ee6bb'}
+              'price_min':       price_min}
     if price_max:
         params['price_max'] = price_max
 
     while has_next_page:
-        params['items_offset'] = items_per_grid * page
+        params['items_offset'] = (items_per_grid * page) + offset_offset
         response = get_page(url, params)
         results = response.json()['explore_tabs'][0]
         home_tab_meta_data = results['home_tab_metadata']
@@ -75,13 +72,11 @@ def go_through_pages_in_range(query, price_min, price_max):
             print("Attempting Again...")
             print(f"Attempt number {attempts}")
             has_next_page = True
-            page = 0
+            offset_offset = len(set(listing_ids + page_listing_ids)) - len(
+                listing_ids + page_listing_ids)
             attempts += 1
-            listing_ids = []
-            sleep(30)
             continue
 
-        attempts = 0
         page += 1
         listing_ids += page_listing_ids
         if page == 1:
