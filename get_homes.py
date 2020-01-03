@@ -22,7 +22,7 @@ def go_through_pages_in_range(query, price_min, price_max):
     attempts = 0
     page = 0
     items_per_grid = 50
-    max_attempts = 3
+    max_attempts = 10
     estimated_range = 0
 
     url = 'https://www.airbnb.com/api/v2/explore_tabs'
@@ -72,6 +72,7 @@ def go_through_pages_in_range(query, price_min, price_max):
             page = 0
             attempts += 1
             listing_ids = []
+            sleep(10)
             continue
 
         attempts = 0
