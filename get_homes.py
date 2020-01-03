@@ -1,4 +1,3 @@
-import collections
 import datetime
 import os
 import sys
@@ -10,7 +9,7 @@ from dotenv import load_dotenv
 from get_listing_info import get_all_listing_info
 from helpers import get_and_format_location, \
     get_directory, get_full_file_path, check_and_created_directory, \
-    get_page, upload_to_digital_ocean
+    get_page, upload_to_digital_ocean, take_break
 
 load_dotenv()
 
@@ -71,26 +70,16 @@ def go_through_pages_in_range(query, price_min, price_max):
             print("\n")
             print("Attempting Again...")
             print(f"Attempt number {attempts + 1}")
-            len_set = len(set(listing_ids + page_listing_ids))
-            len_list = len(listing_ids + page_listing_ids)
-            tmp_list = listing_ids + page_listing_ids
-            has_next_page = True
-            print(len_set)
-            print(len_list)
-            offset_offset = len_list - len_set
-            print(offset_offset)
             attempts += 1
-            repeats = [item for item, count in collections.Counter(
-                tmp_list).items() if count > 1]
-            print(repeats)
-            repeats_index = [tmp_list.index(repeat) for repeat in repeats]
-            print(repeats_index)
+            page = 0
+            listing_ids = []
+            has_next_page = True
+            take_break(30)
 
             continue
 
         page += 1
         listing_ids += page_listing_ids
-        prev_page = page_listing_ids
         if page == 1:
             print("Estimated Listings in Range: ", estimated_range)
             print("\n")
