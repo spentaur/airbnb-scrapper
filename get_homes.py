@@ -41,8 +41,8 @@ def go_through_pages_in_range(query, price_min, price_max):
         params['items_offset'] = (items_per_grid * page) - offset_offset
         response = get_page(url, params)
         results = response.json()['explore_tabs'][0]
-        place_id = response['metadata']['geography']['place_id']
-        federated_search_session_id = response['metadata'][
+        place_id = response.json()['metadata']['geography']['place_id']
+        federated_search_session_id = response.json()['metadata'][
             'federated_search_session_id']
         s_tag = results['home_tab_metadata']['search']['mobile_session_id']
         params['place_id'] = place_id
