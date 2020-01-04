@@ -28,13 +28,13 @@ def download_dir(client, dist, local='../', bucket='spentaur'):
             if not os.path.exists(os.path.dirname(dest_pathname)):
                 os.makedirs(os.path.dirname(dest_pathname))
             client.download_file(bucket, file.get('Key'), dest_pathname)
-            client.delete_object(Bucket=bucket, Key=file.get('Key'))
+            # client.delete_object(Bucket=bucket, Key=file.get('Key'))
 
 
-def combine_all_listing_ids(city_formatted, date):
+def combine_all_listings(city_formatted, date):
     client = set_up_digital_ocean(os.getenv("ACCESS_ID"),
                                   os.getenv("SECRET_KEY"))
-    folder_path = f'airbnb-data/ids/{city_formatted}/{date}/'
+    folder_path = f'airbnb-data/{city_formatted}/{date}/'
     file_path = f"{folder_path}{city_formatted}.csv"
     download_dir(client, folder_path)
 
@@ -42,8 +42,9 @@ def combine_all_listing_ids(city_formatted, date):
     with os.scandir(f'../{folder_path}') as i:
         for entry in i:
             if entry.is_file():
+                print(entry.name)
                 df = pd.concat([df, pd.read_csv(entry.path)])
-                os.remove(entry.path)
+                # os.remove(entry.path)
 
     df.to_csv(f"../{file_path}", index=None)
     upload_to_digital_ocean(f"../{file_path}")
@@ -53,8 +54,8 @@ def combine_all_listing_ids(city_formatted, date):
 if __name__ == '__main__':
     today = datetime.date.today()
     city, city_formatted, _ = get_and_format_location()
-    id_date = input("Date Id's Collected: ")
-    if id_date.lower() == "":
+    date_collected = input("Date Collected: ")
+    if date_collected.lower() == "":
         s = "/"
         folder = get_directory(city_formatted, str(today)).split('/')[
                  :-1]
@@ -62,4 +63,4 @@ if __name__ == '__main__':
         dates = [parse(f.name) for f in os.scandir(folder) if f.is_dir()]
         newest = sorted(dates)[-1]
         id_date = newest.strftime("%Y-%m-%d")
-    combine_all_listing_ids(city_formatted, id_date)
+    combine_all_listings(city_formatted, date_collected)
