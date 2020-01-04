@@ -33,7 +33,7 @@ def go_through_pages_in_range(query, price_min, price_max):
     url = 'https://www.airbnb.com/api/v2/explore_tabs'
 
     while has_next_page:
-        params = {'_format':                       'for_explore_search_web',
+        params = {'_format':                       'for_explore_search_native',
                   'auto_ib':                       'false', 'currency': 'USD',
                   'current_tab_id':                'home_tab',
                   'experiences_per_grid':          '20',
@@ -119,8 +119,6 @@ def go_through_pages_in_range(query, price_min, price_max):
             continue
 
         page += 1
-        print(f"Length of listing ids and page ids"
-              f" {len(set(listing_ids + page_listing_ids))}")
         listing_ids += page_listing_ids
         if page == 1:
             print("Estimated Listings in Range: ", estimated_range)
