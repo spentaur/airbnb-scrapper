@@ -99,9 +99,7 @@ def go_through_pages_in_range(query, price_min, price_max):
             estimated_range > 306
         }
         attempts_conditions = {
-            response is None,
-            len(set(listing_ids + page_listing_ids)) != len(listing_ids +
-                                                            page_listing_ids)
+            response is None
         }
 
         if True in break_conditions:
@@ -111,8 +109,6 @@ def go_through_pages_in_range(query, price_min, price_max):
             print("\n")
             print("Attempting Again...")
             print(f"Attempt number {attempts + 1}")
-            print(f"Length of listing ids and page ids"
-                  f" {len(set(listing_ids + page_listing_ids))}")
             attempts += 1
             place_id = None
             federated_search_session_id = None
@@ -124,6 +120,8 @@ def go_through_pages_in_range(query, price_min, price_max):
             continue
 
         page += 1
+        print(f"Length of listing ids and page ids"
+              f" {len(set(listing_ids + page_listing_ids))}")
         listing_ids += page_listing_ids
         if page == 1:
             print("Estimated Listings in Range: ", estimated_range)
@@ -135,6 +133,8 @@ def go_through_pages_in_range(query, price_min, price_max):
 
     sys.stdout.write(
         f"\rDone Getting {len(set(listing_ids))} Listing Ids!            \n")
+
+    assert len(set(listing_ids)) >= estimated_range
 
     return list(set(listing_ids)), estimated_range
 
