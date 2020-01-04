@@ -22,7 +22,7 @@ def go_through_pages_in_range(query, price_min, price_max):
     attempts = 0
     page = 0
     items_per_grid = 50
-    max_attempts = 500
+    max_attempts = 3
     estimated_range = 0
     place_id = None
     federated_search_session_id = None
