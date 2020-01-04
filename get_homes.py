@@ -28,6 +28,7 @@ def go_through_pages_in_range(query, price_min, price_max):
     federated_search_session_id = None
     s_tag = None
     search_session_id = None
+    offset_factor = items_per_grid // 2
 
     url = 'https://www.airbnb.com/api/v2/explore_tabs'
 
@@ -56,7 +57,7 @@ def go_through_pages_in_range(query, price_min, price_max):
                   'search_type':                   'pagination',
                   'selected_tab_id':               'home_tab',
                   'price_min':                     price_min,
-                  'items_offset':                  items_per_grid * page}
+                  'items_offset':                  offset_factor * page}
 
         if price_max:
             params['price_max'] = price_max
@@ -91,7 +92,7 @@ def go_through_pages_in_range(query, price_min, price_max):
             if 'listings' in section
             for listing in section['listings']
         ]
-        estimated_pages = min(7, -(estimated_range // -50))
+        estimated_pages = min(7, -(estimated_range // -offset_factor))
 
         break_conditions = {
             attempts >= max_attempts,
