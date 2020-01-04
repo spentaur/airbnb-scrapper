@@ -16,7 +16,6 @@ load_dotenv()
 
 def go_through_pages_in_range(query, price_min, price_max):
     listing_ids = []
-    offset_offset = 0
 
     has_next_page = True
 
@@ -25,38 +24,66 @@ def go_through_pages_in_range(query, price_min, price_max):
     items_per_grid = 50
     max_attempts = 50
     estimated_range = 0
+    place_id = None
+    federated_search_session_id = None
+    s_tag = None
+    search_session_id = None
 
     url = 'https://www.airbnb.com/api/v2/explore_tabs'
-    params = {'_format':         'for_explore_search_web',
-              'items_per_grid':  items_per_grid,
-              'key':             os.getenv("AIRBNB_KEY"),
-              'query':           f'{query}',
-              'search_type':     'pagination',
-              'selected_tab_id': 'home_tab',
-              'price_min':       price_min}
-    if price_max:
-        params['price_max'] = price_max
 
     while has_next_page:
-        params['items_offset'] = (items_per_grid * page) - offset_offset
+        params = {'_format':                       'for_explore_search_web',
+                  'auto_ib':                       'false', 'currency': 'USD',
+                  'current_tab_id':                'home_tab',
+                  'experiences_per_grid':          '20',
+                  'fetch_filters':                 'true',
+                  'guidebooks_per_grid':           '20',
+                  'has_zero_guest_treatment':      'true',
+                  'hide_dates_and_guests_filters': 'false',
+                  'is_guided_search':              'true',
+                  'is_new_cards_experiment':       'true',
+                  'is_standard_search':            'true', 'locale': 'en',
+                  'metadata_only':                 'false',
+                  'query_understanding_enabled':   'true',
+                  'satori_version':                '1.2.5',
+                  'section_offset':                '4',
+                  'show_groupings':                'true',
+                  'supports_for_you_v3':           'true',
+                  'timezone_offset':               '-360', 'version': '1.7.0',
+                  'items_per_grid':                items_per_grid,
+                  'key':                           os.getenv("AIRBNB_KEY"),
+                  'query':                         f'{query}',
+                  'search_type':                   'pagination',
+                  'selected_tab_id':               'home_tab',
+                  'price_min':                     price_min,
+                  'items_offset':                  items_per_grid * page}
+
+        if price_max:
+            params['price_max'] = price_max
+
+        if place_id and federated_search_session_id and s_tag and \
+                search_session_id:
+            params['place_id'] = place_id
+            params['s_tag'] = s_tag
+            params['federated_search_session_id'] = federated_search_session_id
+            params['last_search_session_id'] = search_session_id
+
         response = get_page(url, params)
         results = response.json()['explore_tabs'][0]
-
-        place_id = response.json()['metadata']['geography']['place_id']
-        federated_search_session_id = response.json()['metadata'][
-            'federated_search_session_id']
-        s_tag = results['home_tab_metadata']['search']['mobile_session_id']
-        params['place_id'] = place_id
-        params['s_tag'] = s_tag
-        params['federated_search_session_id'] = federated_search_session_id
-
+        metadata = response.json()['metadata']
         home_tab_meta_data = results['home_tab_metadata']
+
+        place_id = metadata['geography']['place_id']
+        federated_search_session_id = metadata['federated_search_session_id']
+        s_tag = home_tab_meta_data['search']['mobile_session_id']
+
         estimated_range = home_tab_meta_data['listings_count']
         has_next_page = results['pagination_metadata']['has_next_page']
+
         if has_next_page:
             search_session_id = results['pagination_metadata'][
                 'search_session_id']
-            params['last_search_session_id'] = search_session_id
+
         sections = results['sections']
         page_listing_ids = [
             listing['listing']['id']
@@ -84,19 +111,13 @@ def go_through_pages_in_range(query, price_min, price_max):
             print("Attempting Again...")
             print(f"Attempt number {attempts + 1}")
             attempts += 1
-            tmp_list = listing_ids + page_listing_ids
-            seen = set()
-            dupe_idx = []
-            for idx, id in enumerate(tmp_list):
-                if id in seen:
-                    dupe_idx.append(idx)
-                seen.add(id)
-            print(dupe_idx)
-            print(len(tmp_list) - len(set(tmp_list)))
+            place_id = None
+            federated_search_session_id = None
+            s_tag = None
+            search_session_id = None
             page = 0
             listing_ids = []
             has_next_page = True
-
             continue
 
         page += 1
@@ -109,7 +130,8 @@ def go_through_pages_in_range(query, price_min, price_max):
         sys.stdout.write(f"Page: {page} / {max(estimated_pages, 1)}")
         sys.stdout.flush()
 
-    sys.stdout.write(f"\rDone Getting {len(listing_ids)} Listing Ids!  \n")
+    sys.stdout.write(
+        f"\rDone Getting {len(listing_ids)} Listing Ids!            \n")
 
     assert (len(listing_ids) == estimated_range)
 
