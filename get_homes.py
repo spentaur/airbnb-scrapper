@@ -92,7 +92,6 @@ def go_through_pages_in_range(query, price_min, price_max):
             if 'listings' in section
             for listing in section['listings']
         ]
-        estimated_pages = (-(estimated_range // -offset_factor)) - 1
 
         break_conditions = {
             attempts >= max_attempts,
@@ -128,7 +127,7 @@ def go_through_pages_in_range(query, price_min, price_max):
             print("\n")
 
         sys.stdout.write("\r")
-        sys.stdout.write(f"Page: {page} / {max(estimated_pages, 1)}")
+        sys.stdout.write(f"Page: {page}")
         sys.stdout.flush()
 
     sys.stdout.write(
