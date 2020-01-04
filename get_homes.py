@@ -28,7 +28,7 @@ def go_through_pages_in_range(query, price_min, price_max):
     federated_search_session_id = None
     s_tag = None
     search_session_id = None
-    offset_factor = items_per_grid // 2
+    offset_factor = items_per_grid // 5
 
     url = 'https://www.airbnb.com/api/v2/explore_tabs'
 
