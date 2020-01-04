@@ -100,7 +100,8 @@ def go_through_pages_in_range(query, price_min, price_max):
         }
         attempts_conditions = {
             response is None,
-            len(set(listing_ids + page_listing_ids)) < estimated_range
+            len(set(listing_ids + page_listing_ids)) == len(listing_ids +
+                                                            page_listing_ids)
         }
 
         if True in break_conditions:
