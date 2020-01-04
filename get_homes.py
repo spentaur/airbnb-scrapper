@@ -203,8 +203,6 @@ def main():
         if len(total_listings_saved) > 0:
             num_saved = total_listings_saved['id'].nunique()
 
-        assert (num_saved >= total_estimated_listings)
-
         print("Estimated Listings in Price Range:",
               estimated_number)
         print("Listings Saved in Price Range:", len(listings))
