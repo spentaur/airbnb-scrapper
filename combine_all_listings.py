@@ -29,6 +29,7 @@ def download_dir(client, dist, local='../', bucket='spentaur'):
                 os.makedirs(os.path.dirname(dest_pathname))
             client.download_file(bucket, file.get('Key'), dest_pathname)
             # client.delete_object(Bucket=bucket, Key=file.get('Key'))
+            # TODO split and delete old?
 
 
 def combine_all_listings(city_formatted, date):
