@@ -49,7 +49,11 @@ def get_listing_info(listing_id):
     guest_label = results["guest_label"]
     name = results["name"]
     person_capacity = results["person_capacity"]
-    photo_count = len(results["photos"])
+    photos = results["photos"]
+    photo_count = len(photos)
+    default_photo = photos[0]["large"]
+    number_of_professional_photos = sum(
+        photo["is_professional"] for photo in photos)
     host_name = results["primary_host"]["host_name"]
     languages = json.dumps(results["primary_host"]["languages"])
     room_and_property_type = results["room_and_property_type"]
@@ -116,56 +120,58 @@ def get_listing_info(listing_id):
                                                   "appreciation_tags"],
                                               appreciation_tags_keys)
 
-    listing = {"additional_house_rules":      additional_house_rules,
-               "bathroom_label":              bathroom_label,
-               "bed_label":                   bed_label,
-               "bedroom_label":               bedroom_label,
-               "guest_label":                 guest_label,
-               "id":                          results["id"],
-               "name":                        name,
-               "person_capacity":             person_capacity,
-               "photo_count":                 photo_count,
-               "host_name":                   host_name,
-               "languages":                   languages,
-               "room_and_property_type":      room_and_property_type,
-               "room_type_category":          room_type_category,
-               "is_plus":                     is_plus,
-               "min_nights":                  min_nights,
-               "location_title":              location_title,
+    listing = {"additional_house_rules":        additional_house_rules,
+               "bathroom_label":                bathroom_label,
+               "bed_label":                     bed_label,
+               "bedroom_label":                 bedroom_label,
+               "guest_label":                   guest_label,
+               "id":                            results["id"],
+               "name":                          name,
+               "person_capacity":               person_capacity,
+               "photo_count":                   photo_count,
+               "default_photo":                 default_photo,
+               "number_of_professional_photos": number_of_professional_photos,
+               "host_name":                     host_name,
+               "languages":                     languages,
+               "room_and_property_type":        room_and_property_type,
+               "room_type_category":            room_type_category,
+               "is_plus":                       is_plus,
+               "min_nights":                    min_nights,
+               "location_title":                location_title,
                "localized_check_in_time_window":
-                                              localized_check_in_time_window,
+                                                localized_check_in_time_window,
                "localized_check_out_time":
-                                              localized_check_out_time,
-               "lat":                         lat,
-               "lng":                         lng,
-               "neighborhood_id":             neighborhood_id,
-               "license":                     license_number,
-               "requires_license":            requires_license,
+                                                localized_check_out_time,
+               "lat":                           lat,
+               "lng":                           lng,
+               "neighborhood_id":               neighborhood_id,
+               "license":                       license_number,
+               "requires_license":              requires_license,
                "support_cleaner_living_wage":
-                                              support_cleaner_living_wage,
+                                                support_cleaner_living_wage,
                "host_other_property_review_count":
-                                              host_other_property_review_count,
-               "host_badges":                 host_badges,
-               "host_intro_tags":             host_intro_tags,
-               "listing_review_count":        listing_review_count,
-               "listing_review_score":        listing_review_score,
-               "visible_review_count":        visible_review_count,
-               "host_interaction":            host_interaction,
-               "host_quote":                  host_quote,
-               "is_select_market":            is_select_market,
+                                                host_other_property_review_count,
+               "host_badges":                   host_badges,
+               "host_intro_tags":               host_intro_tags,
+               "listing_review_count":          listing_review_count,
+               "listing_review_score":          listing_review_score,
+               "visible_review_count":          visible_review_count,
+               "host_interaction":              host_interaction,
+               "host_quote":                    host_quote,
+               "is_select_market":              is_select_market,
                "nearby_airport_distance_descriptions":
-                                              nearby_airport_distance_descriptions,
-               "is_hotel":                    is_hotel,
-               "is_representative_inventory": is_representative_inventory,
-               "has_essentials_amenity":      has_essentials_amenity,
-               "localized_overall_rating":    localized_overall_rating,
-               "discount_phrase":             discount_phrase,
-               "amenities":                   amenities,
-               "highlights":                  highlights,
-               "expectations":                expectations,
-               "additional_hosts":            additional_hosts,
-               "review_summaries":            review_summaries,
-               "appreciation_tags":           appreciation_tags
+                                                nearby_airport_distance_descriptions,
+               "is_hotel":                      is_hotel,
+               "is_representative_inventory":   is_representative_inventory,
+               "has_essentials_amenity":        has_essentials_amenity,
+               "localized_overall_rating":      localized_overall_rating,
+               "discount_phrase":               discount_phrase,
+               "amenities":                     amenities,
+               "highlights":                    highlights,
+               "expectations":                  expectations,
+               "additional_hosts":              additional_hosts,
+               "review_summaries":              review_summaries,
+               "appreciation_tags":             appreciation_tags
                }
 
     # TODO do all this nested fetching recursively
