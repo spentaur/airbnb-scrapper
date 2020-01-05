@@ -1,6 +1,7 @@
 import datetime
 import os
 
+import numpy as np
 import pandas as pd
 from dateutil.parser import parse
 from dotenv import load_dotenv
@@ -28,27 +29,27 @@ def download_dir(client, dist, local='../', bucket='spentaur'):
             if not os.path.exists(os.path.dirname(dest_pathname)):
                 os.makedirs(os.path.dirname(dest_pathname))
             client.download_file(bucket, file.get('Key'), dest_pathname)
-            # client.delete_object(Bucket=bucket, Key=file.get('Key'))
-            # TODO split and delete old?
+            client.delete_object(Bucket=bucket, Key=file.get('Key'))
 
 
 def combine_all_listings(city_formatted, date):
     client = set_up_digital_ocean(os.getenv("ACCESS_ID"),
                                   os.getenv("SECRET_KEY"))
     folder_path = f'airbnb-data/{city_formatted}/{date}/'
-    file_path = f"{folder_path}{city_formatted}.csv"
     download_dir(client, folder_path)
 
     df = pd.DataFrame()
     with os.scandir(f'../{folder_path}') as i:
         for entry in i:
             if entry.is_file():
-                print(entry.name)
                 df = pd.concat([df, pd.read_csv(entry.path)])
-                # os.remove(entry.path)
+                os.remove(entry.path)
 
-    df.to_csv(f"../{file_path}", index=None)
-    upload_to_digital_ocean(f"../{file_path}")
+    dfs = np.array_split(df, 10)
+    for idx, df_split in enumerate(dfs):
+        file_path = f"{folder_path}{city_formatted}_{idx + 1}.csv"
+        df_split.to_csv(f"../{file_path}", index=None)
+        upload_to_digital_ocean(f"../{file_path}")
     print("Done!")
 
 

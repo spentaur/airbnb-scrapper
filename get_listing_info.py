@@ -53,12 +53,9 @@ def get_listing_info(listing_id):
     languages = results['primary_host']['languages']
     room_and_property_type = results['room_and_property_type']
     room_type_category = results['room_type_category']
-    tier_id = results['tier_id']
-    calendar_last_updated_at = results['calendar_last_updated_at']
+    is_plus = bool(results['tier_id'])
     min_nights = results['min_nights']
-    has_we_work_location = results['has_we_work_location']
     location_title = results['location_title']
-    is_business_travel_ready = results['is_business_travel_ready']
     localized_check_in_time_window = results[
         'localized_check_in_time_window']
     localized_check_out_time = results['localized_check_out_time']
@@ -83,10 +80,11 @@ def get_listing_info(listing_id):
     is_hotel = results['is_hotel']
     is_representative_inventory = results['is_representative_inventory']
     has_essentials_amenity = results['has_essentials_amenity']
-    security_deposit_details = results['security_deposit_details']
     localized_overall_rating = results['reviews_module'][
         'localized_overall_rating']
     discount_phrase = results['availability_module']['discount_phrase']
+    host_badges = results['primary_host']['badges']
+    host_intro_tags = results['primary_host']['host_intro_tags']
 
     amenities_keys = ['id', 'is_business_ready_feature', 'is_present',
                       'is_safety_feature', 'name']
@@ -130,14 +128,9 @@ def get_listing_info(listing_id):
                'languages':                   languages,
                'room_and_property_type':      room_and_property_type,
                'room_type_category':          room_type_category,
-               'tier_id':                     tier_id,
-               'calendar_last_updated_at':
-                                              calendar_last_updated_at,
+               'is_plus':                     is_plus,
                'min_nights':                  min_nights,
-               'has_we_work_location':        has_we_work_location,
                'location_title':              location_title,
-               'is_business_travel_ready':
-                                              is_business_travel_ready,
                'localized_check_in_time_window':
                                               localized_check_in_time_window,
                'localized_check_out_time':
@@ -151,6 +144,8 @@ def get_listing_info(listing_id):
                                               support_cleaner_living_wage,
                'host_other_property_review_count':
                                               host_other_property_review_count,
+               'host_badges':                 host_badges,
+               'host_intro_tags':             host_intro_tags,
                'listing_review_count':        listing_review_count,
                'listing_review_score':        listing_review_score,
                'visible_review_count':        visible_review_count,
@@ -162,7 +157,6 @@ def get_listing_info(listing_id):
                'is_hotel':                    is_hotel,
                'is_representative_inventory': is_representative_inventory,
                'has_essentials_amenity':      has_essentials_amenity,
-               'security_deposit_details':    security_deposit_details,
                'localized_overall_rating':    localized_overall_rating,
                'discount_phrase':             discount_phrase,
                'amenities':                   amenities,
@@ -189,7 +183,7 @@ def get_listing_info(listing_id):
 
     host_keys = ['id', 'identity_verified', 'is_superhost',
                  'member_since', 'response_rate_without_na',
-                 'response_time_without_na', 'has_inclusion_badge',
+                 'response_time_without_na',
                  'profile_pic_path_large']
     for key in host_keys:
         listing[f"host_{key}"] = results['primary_host'][key]
@@ -203,17 +197,10 @@ def get_listing_info(listing_id):
 
     guest_controls_keys = ['allows_children', 'allows_infants',
                            'allows_infants', 'allows_smoking',
-                           'allows_events', 'host_check_in_time_message',
-                           'allows_non_china_users']
+                           'allows_events']
 
     for key in guest_controls_keys:
         listing[key] = results['guest_controls'][key]
-
-    if results['education_modules']['plus_education_module_v1'] or \
-            results['education_modules']['plus_education_module_v2']:
-        listing['is_plus'] = True
-    else:
-        listing['is_plus'] = False
 
     return listing
 
@@ -225,7 +212,7 @@ def get_booking_info(listing_id, min_nights, max_guests):
     check_in = (today + delta).strftime("%Y-%m-%d")
     check_out = ((today + delta) + delta_min_nights).strftime("%Y-%m-%d")
 
-    cleaning_fee = 0
+    cleaning_fees = set()
     cancelation_policies = []
     non_refundable_discount_amount = 0
     extra_guest_fee = 0
@@ -256,10 +243,11 @@ def get_booking_info(listing_id, min_nights, max_guests):
 
         results = response.json()['pdp_listing_booking_details'][0]
 
-        if number_of_adults == 0:
-            for price_item in results['price']['price_items']:
-                if price_item['type'] == "CLEANING_FEE":
-                    cleaning_fee = price_item['total']['amount']
+        for price_item in results['price']['price_items']:
+            if price_item['type'] == "CLEANING_FEE":
+                cleaning_fees.add(price_item['total']['amount'])
+
+        if number_of_adults == 1:
 
             policy_keys = ['localized_cancellation_policy_name',
                            'cancellation_policy_label',
@@ -289,7 +277,7 @@ def get_booking_info(listing_id, min_nights, max_guests):
             extra_guest_fee_at = number_of_adults - 1
             break
 
-    data = [cleaning_fee, cancelation_policies,
+    data = [cleaning_fees, cancelation_policies,
             non_refundable_discount_amount, extra_guest_fee,
             extra_guest_fee_at, check_in, check_out]
 
@@ -326,7 +314,7 @@ def get_reviews_info(listing_id, number_of_reviews):
             newest = max(created_at, newest)
         else:
             newest = created_at
-    return newest, oldest, len(reviews)
+    return newest, oldest
 
 
 def get_calendar_info(listing_id):
@@ -393,10 +381,9 @@ def get_all_listing_info(listing_id):
     if review_info is None:
         return None
 
-    newest_comment, oldest_comment, len_reviews = review_info
+    newest_comment, oldest_comment = review_info
     listing['newest_reviews_date'] = newest_comment
     listing['oldest_reviews_date'] = oldest_comment
-    listing['len_reviews'] = len_reviews
 
     calendar = get_calendar_info(listing_id)
     if calendar is None:
