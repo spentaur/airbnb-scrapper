@@ -131,8 +131,6 @@ def go_through_pages_in_range(query, price_min, price_max):
     sys.stdout.write(
         f"\rDone Getting {len(set(listing_ids))} Listing Ids!            \n")
 
-    assert len(set(listing_ids)) >= estimated_range
-
     return list(set(listing_ids)), estimated_range
 
 
