@@ -1,7 +1,6 @@
 import datetime
 import os
 import sys
-from time import sleep
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -9,7 +8,7 @@ from dotenv import load_dotenv
 from get_listing_info import get_all_listing_info
 from helpers import get_and_format_location, \
     get_directory, get_full_file_path, check_and_created_directory, \
-    get_page, upload_to_digital_ocean
+    get_page, upload_to_digital_ocean, take_break
 
 load_dotenv()
 
@@ -143,7 +142,7 @@ def main():
     city, city_formatted, query = get_and_format_location()
     directory = get_directory(city_formatted, str(today))
     check_and_created_directory(directory)
-    starting_price = int(input("Starting Price: "))
+    starting_price = input("Starting Price: ")
     ending_price = input("Ending Price: ")
     print("\n")
     total_listings_saved = pd.DataFrame()
@@ -194,7 +193,7 @@ def main():
             total_listings_saved = pd.concat([listings,
                                               total_listings_saved])
         else:
-            sleep(10)
+            take_break(5)
 
         total_estimated_listings += estimated_number
         num_saved = 0

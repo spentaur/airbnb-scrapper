@@ -43,7 +43,7 @@ def combine_all_listings(city_formatted, date):
         for entry in i:
             if entry.is_file():
                 df = pd.concat([df, pd.read_csv(entry.path)])
-                os.remove(entry.path)
+                # os.remove(entry.path)
 
     dfs = np.array_split(df, 10)
     for idx, df_split in enumerate(dfs):

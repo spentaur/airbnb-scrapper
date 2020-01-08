@@ -91,134 +91,78 @@ def get_listing_info(listing_id):
     host_badges = results["primary_host"]["badges"]
     host_intro_tags = results["primary_host"]["host_intro_tags"]
 
-    amenities_keys = ["id", "is_business_ready_feature", "is_present",
-                      "is_safety_feature", "name"]
-    amenities = get_only_certain_attr(results["listing_amenities"],
-                                      amenities_keys)
+    amenities = json.dumps(results["listing_amenities"])
+    highlights = json.dumps(results["highlights"])
+    expectations = json.dumps(results["listing_expectations"])
+    additional_hosts = json.dumps(results["additional_hosts"])
+    review_summaries = json.dumps(
+        results["review_details_interface"]["review_summary"])
+    appreciation_tags = json.dumps(
+        results["reviews_module"]["appreciation_tags"])
+    rooms = json.dumps(results["listing_rooms"])
+    primary_host = json.dumps(results["primary_host"])
+    sectioned_description = json.dumps(results["sectioned_description"])
+    guest_controls = json.dumps(results['guest_controls'])
 
-    highlights_keys = ["type", "message", "headline"]
-    highlights = get_only_certain_attr(results["highlights"],
-                                       highlights_keys)
-
-    expectations_keys = ["type", "title"]
-    expectations = get_only_certain_attr(results["listing_expectations"],
-                                         expectations_keys)
-
-    additional_hosts_keys = ["id", "member_since", "host_name",
-                             "profile_pic_path"]
-    additional_hosts = get_only_certain_attr(results["additional_hosts"],
-                                             additional_hosts_keys)
-
-    review_summaries_keys = ["category", "value", "localized_rating",
-                             "percentage"]
-    review_summaries = get_only_certain_attr(
-        results["review_details_interface"]["review_summary"],
-        review_summaries_keys)
-
-    appreciation_tags_keys = ["localized_text", "localized_count_string"]
-    appreciation_tags = get_only_certain_attr(results["reviews_module"][
-                                                  "appreciation_tags"],
-                                              appreciation_tags_keys)
-
-    listing = {"additional_house_rules":        additional_house_rules,
-               "bathroom_label":                bathroom_label,
-               "bed_label":                     bed_label,
-               "bedroom_label":                 bedroom_label,
-               "guest_label":                   guest_label,
-               "id":                            results["id"],
-               "name":                          name,
-               "person_capacity":               person_capacity,
-               "photo_count":                   photo_count,
-               "default_photo":                 default_photo,
-               "number_of_professional_photos": number_of_professional_photos,
-               "host_name":                     host_name,
-               "languages":                     languages,
-               "room_and_property_type":        room_and_property_type,
-               "room_type_category":            room_type_category,
-               "is_plus":                       is_plus,
-               "min_nights":                    min_nights,
-               "location_title":                location_title,
-               "localized_check_in_time_window":
-                                                localized_check_in_time_window,
-               "localized_check_out_time":
-                                                localized_check_out_time,
-               "lat":                           lat,
-               "lng":                           lng,
-               "neighborhood_id":               neighborhood_id,
-               "license":                       license_number,
-               "requires_license":              requires_license,
-               "support_cleaner_living_wage":
-                                                support_cleaner_living_wage,
-               "host_other_property_review_count":
-                                                host_other_property_review_count,
-               "host_badges":                   host_badges,
-               "host_intro_tags":               host_intro_tags,
-               "listing_review_count":          listing_review_count,
-               "listing_review_score":          listing_review_score,
-               "visible_review_count":          visible_review_count,
-               "host_interaction":              host_interaction,
-               "host_quote":                    host_quote,
-               "is_select_market":              is_select_market,
-               "nearby_airport_distance_descriptions":
-                                                nearby_airport_distance_descriptions,
-               "is_hotel":                      is_hotel,
-               "is_representative_inventory":   is_representative_inventory,
-               "has_essentials_amenity":        has_essentials_amenity,
-               "localized_overall_rating":      localized_overall_rating,
-               "discount_phrase":               discount_phrase,
-               "amenities":                     amenities,
-               "highlights":                    highlights,
-               "expectations":                  expectations,
-               "additional_hosts":              additional_hosts,
-               "review_summaries":              review_summaries,
-               "appreciation_tags":             appreciation_tags
-               }
-
-    # TODO do all this nested fetching recursively
-    rooms = {}
-    for room in results["listing_rooms"]:
-        room_number = room["room_number"]
-        beds = []
-        beds_keys = ["quantity", "type"]
-        for bed in room["beds"]:
-            features = {}
-            for key in beds_keys:
-                features[key] = bed[key]
-            beds.append(features)
-        rooms[room_number] = beds
-    listing["rooms"] = json.dumps(rooms)
-
-    host_keys = ["id", "identity_verified", "is_superhost",
-                 "member_since", "response_rate_without_na",
-                 "response_time_without_na",
-                 "profile_pic_path_large"]
-    for key in host_keys:
-        listing[f"host_{key}"] = results["primary_host"][key]
-
-    sectioned_description_keys = ["access", "description", "house_rules",
-                                  "interaction", "neighborhood_overview",
-                                  "notes", "space", "summary", "transit"]
-
-    for key in sectioned_description_keys:
-        listing[key] = results["sectioned_description"][key]
-
-    guest_controls_keys = ["allows_children", "allows_infants",
-                           "allows_infants", "allows_smoking",
-                           "allows_events"]
-
-    for key in guest_controls_keys:
-        listing[key] = results["guest_controls"][key]
+    listing = {
+        "additional_house_rules":         additional_house_rules,
+        "bathroom_label":                 bathroom_label,
+        "bed_label":                      bed_label,
+        "bedroom_label":                  bedroom_label,
+        "guest_label":                    guest_label,
+        "id":                             results["id"],
+        "name":                           name,
+        "person_capacity":                person_capacity,
+        "photo_count":                    photo_count,
+        "default_photo":                  default_photo,
+        "number_of_professional_photos":  number_of_professional_photos,
+        "host_name":                      host_name,
+        "languages":                      languages,
+        "room_and_property_type":         room_and_property_type,
+        "room_type_category":             room_type_category,
+        "is_plus":                        is_plus,
+        "min_nights":                     min_nights,
+        "location_title":                 location_title,
+        "localized_check_in_time_window": localized_check_in_time_window,
+        "localized_check_out_time":       localized_check_out_time,
+        "lat":                            lat,
+        "lng":                            lng,
+        "neighborhood_id":                neighborhood_id,
+        "license":                        license_number,
+        "requires_license":               requires_license,
+        "support_cleaner_living_wage":    support_cleaner_living_wage,
+        "host_other_property_review_count":
+                                          host_other_property_review_count,
+        "host_badges":                    host_badges,
+        "host_intro_tags":                host_intro_tags,
+        "listing_review_count":           listing_review_count,
+        "listing_review_score":           listing_review_score,
+        "visible_review_count":           visible_review_count,
+        "host_interaction":               host_interaction,
+        "host_quote":                     host_quote,
+        "is_select_market":               is_select_market,
+        "nearby_airport_descriptions":    nearby_airport_distance_descriptions,
+        "is_hotel":                       is_hotel,
+        "is_representative_inventory":    is_representative_inventory,
+        "has_essentials_amenity":         has_essentials_amenity,
+        "localized_overall_rating":       localized_overall_rating,
+        "discount_phrase":                discount_phrase,
+        "amenities":                      amenities,
+        "highlights":                     highlights,
+        "expectations":                   expectations,
+        "additional_hosts":               additional_hosts,
+        "review_summaries":               review_summaries,
+        "appreciation_tags":              appreciation_tags,
+        "rooms":                          rooms,
+        'primary_host':                   primary_host,
+        "sectioned_description":          sectioned_description,
+        "guest_controls":                 guest_controls
+    }
 
     return listing
 
 
-def get_booking_info(listing_id, min_nights, max_guests):
-    today = datetime.date.today()
-    delta = datetime.timedelta(days=14)
-    delta_min_nights = datetime.timedelta(days=min_nights)
-    check_in = (today + delta).strftime("%Y-%m-%d")
-    check_out = ((today + delta) + delta_min_nights).strftime("%Y-%m-%d")
-
+def get_booking_info(listing_id, check_in, check_out, max_guests, min_nights):
     cleaning_fees = set()
     cancelation_policies = []
     non_refundable_discount_amount = 0
@@ -326,6 +270,9 @@ def get_reviews_info(listing_id, number_of_reviews):
 
 def get_calendar_info(listing_id):
     url = "https://www.airbnb.com/api/v2/homes_pdp_availability_calendar"
+    check_in = None
+    check_out = None
+    min_nights = None
     current_year_full = datetime.datetime.now().strftime("%Y")
     current_month = datetime.datetime.now().strftime("%m")
     params = {"key":        os.getenv("AIRBNB_KEY"),
@@ -350,6 +297,8 @@ def get_calendar_info(listing_id):
     for month in results["calendar_months"]:
         for day in month["days"]:
             price = None
+            bookable = False
+            available_for_checkin = False
             if "local_price_formatted" in day["price"]:
                 price = day["price"]["local_price_formatted"]
 
@@ -358,7 +307,22 @@ def get_calendar_info(listing_id):
                                  "min_nights": day["min_nights"],
                                  "price":      price}
 
-    return json.dumps(data)
+            if 'bookable' in day:
+                bookable = day['bookable']
+                data[day["date"]]['bookable'] = day['bookable']
+            if 'available_for_checkin' in day:
+                available_for_checkin = day['available_for_checkin']
+                data[day['date']]['available_for_checkin'] = day[
+                    'available_for_checkin']
+            if bookable and available_for_checkin:
+                check_in = day["date"]
+                check_in_date = datetime.datetime.strptime(day["date"],
+                                                           "%Y-%m-%d")
+                min_nights = day['min_nights']
+                delta = datetime.timedelta(days=min_nights)
+                check_out = (check_in_date + delta).strftime("%Y-%m-%d")
+
+    return json.dumps(data), check_in, check_out, min_nights
 
 
 def get_all_listing_info(listing_id):
@@ -366,8 +330,18 @@ def get_all_listing_info(listing_id):
     if listing is None:
         return None
 
-    booking_info = get_booking_info(listing_id, listing["min_nights"],
-                                    listing["person_capacity"])
+    calendar, check_in, check_out, min_nights = get_calendar_info(listing_id)
+    if calendar is None:
+        return None
+
+    if check_in is None or check_out is None:
+        print(listing_id)
+        return None
+
+    listing["calendar_info"] = calendar
+
+    booking_info = get_booking_info(listing_id, check_in, check_out,
+                                    listing["person_capacity"], min_nights)
 
     if booking_info is None:
         return None
@@ -391,12 +365,6 @@ def get_all_listing_info(listing_id):
     newest_comment, oldest_comment = review_info
     listing["newest_reviews_date"] = newest_comment
     listing["oldest_reviews_date"] = oldest_comment
-
-    calendar = get_calendar_info(listing_id)
-    if calendar is None:
-        return None
-
-    listing["calendar_info"] = calendar
 
     df = pd.DataFrame({k: [v] for k, v in listing.items()})
 
